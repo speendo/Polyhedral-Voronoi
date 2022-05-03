@@ -1,4 +1,4 @@
-from math import tan, radians
+from math import tan, atan, radians
 import random
 
 import plotly.graph_objects as go
@@ -14,14 +14,17 @@ class Point:
     z: float
 
 
-def getTriangleVertices(p: Point, height: float):
+def getTriangleVertices(p: Point, size: float):
     THETA = 30
     MEW = 0.5
-    oppside = tan(radians(THETA / 2)) * height
+
+    opposite = size/2
+    height = opposite / tan(radians(THETA / 2))
+    #opposite = tan(radians(THETA / 2)) * height
 
     return [Point(p.x, p.y + MEW * height, p.z),
-            Point(p.x - oppside, p.y - height + MEW * height, p.z),
-            Point(p.x + oppside, p.y - height + MEW * height, p.z)]
+            Point(p.x - opposite, p.y - height + MEW * height, p.z),
+            Point(p.x + opposite, p.y - height + MEW * height, p.z)]
 
 
 def pointsToScatter(pointarray, formTriangle: bool):
@@ -38,7 +41,7 @@ def pointsToScatter(pointarray, formTriangle: bool):
 
 def main():
     HEIGHT = 1
-    NOPOINTS = 10
+    NOPOINTS = 1
 
     points = [Point(random.random()*10, random.random()*10, 0.5) for _ in range(NOPOINTS)]
     triangles = [getTriangleVertices(points[i], HEIGHT) for i in range(NOPOINTS)]
@@ -54,6 +57,10 @@ def main():
     data.append(go.Scatter3d(x=scatterpoints[0], y=scatterpoints[1], z=scatterpoints[2], mode='markers'))
 
     fig = go.Figure(data=data)
+    fig.update_yaxes(
+        scaleanchor="x",
+        scaleratio=1,
+    )
     fig.show()
 
 
