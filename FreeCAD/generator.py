@@ -1,8 +1,10 @@
+import math
 from typing import Final
 import numpy as np
+import re
 import Draft, Part, Sketcher
 
-numberOfPoints = 10
+numberOfPoints = 2
 
 maxX = 100
 maxY = 50
@@ -12,6 +14,14 @@ slope = "30 deg"
 theta = "15 deg"
 
 doc = App.activeDocument()
+
+
+def string_to_float(string):
+    return float(re.sub("[^0-9.\-]", "", string))
+
+
+def lower_angle():
+    return str(string_to_float(slope) - 90) + " deg"
 
 
 class Triangle:
@@ -29,6 +39,8 @@ class Triangle:
         self.topPoint = None
         self.totalHeightConstraint = None
 
+        self.lowerAngle = lower_angle()
+
     def gen_triangle(self, is_help_geometry):
         # Generate Base Triangle
         # Draw Points
@@ -40,15 +52,15 @@ class Triangle:
 
         # Draw Lines
         self.leftLeg = self.triangle_sketch.addGeometry(Part.LineSegment(App.Vector(-1, -1, 0),
-                                                            App.Vector(0, 1, 0)), is_help_geometry)
+                                                                         App.Vector(0, 1, 0)), is_help_geometry)
         self.rightLeg = self.triangle_sketch.addGeometry(Part.LineSegment(App.Vector(1, 1, 0),
-                                                                     App.Vector(0, -1, 0)), is_help_geometry)
+                                                                          App.Vector(0, -1, 0)), is_help_geometry)
         self.base = self.triangle_sketch.addGeometry(Part.LineSegment(App.Vector(-1, -1, 0),
-                                                            App.Vector(1, -1, 0)), is_help_geometry)
+                                                                      App.Vector(1, -1, 0)), is_help_geometry)
         self.height = self.triangle_sketch.addGeometry(Part.LineSegment(App.Vector(0, -1, 0),
-                                                              App.Vector(0, 1, 0)), True)
+                                                                        App.Vector(0, 1, 0)), True)
         self.thetaLine = self.triangle_sketch.addGeometry(Part.LineSegment(App.Vector(-1, -1, 0),
-                                                                   App.Vector(0, 0, 0)), True)
+                                                                           App.Vector(0, 0, 0)), True)
 
         # Add Coincidences
         self.triangle_sketch.addConstraint(Sketcher.Constraint('Coincident', self.leftPoint, 1, self.leftLeg, 1))
@@ -79,11 +91,20 @@ class Triangle:
             Sketcher.Constraint('Angle', self.base, 1, self.thetaLine, 1, App.Units.Quantity(theta)))
 
     def fix_triangle(self, x, y):
-        if x == 0 & y == 0:
+        # Fix height in order to avoid the triangle to be flipped
+        height_constraint = self.triangle_sketch.addConstraint(Sketcher.Constraint(
+            'DistanceY', self.height, 1, self.height, 2, self.triangle_sketch.Geometry[self.height].length()))
+
+        if x == 0 and y == 0:
             self.triangle_sketch.addConstraint(Sketcher.Constraint('Coincident', self.origin, 1, -1, 1))
         else:
-            self.triangle_sketch.addConstraint(Sketcher.Constraint('DistanceX', self.origin, 1, App.Units.Quantity(str(x) + " mm")))
-            self.triangle_sketch.addConstraint(Sketcher.Constraint('DistanceY', self.origin, 1, App.Units.Quantity(str(y) + " mm")))
+            self.triangle_sketch.addConstraint(
+                Sketcher.Constraint('DistanceX', self.origin, 1, App.Units.Quantity(str(x) + " mm")))
+            self.triangle_sketch.addConstraint(
+                Sketcher.Constraint('DistanceY', self.origin, 1, App.Units.Quantity(str(y) + " mm")))
+
+        # Remove height_constraint
+        self.triangle_sketch.delConstraint(height_constraint)
 
     def move_triangle(self, v_point):
         # Fix height in order to avoid the triangle to be flipped
@@ -93,16 +114,19 @@ class Triangle:
         # Place at specific point
         self.triangle_sketch.addConstraint(Sketcher.Constraint('Coincident', self.origin, 1, v_point.sketchNumber, 1))
 
-        # Remove height_constraint
-        self.triangle_sketch.delConstraint(height_constraint)
-
     def set_reference(self, reference_base):
         # Set Equal To Reference Geometry
         self.triangle_sketch.addConstraint(Sketcher.Constraint('Equal', self.base, reference_base))
 
+    def scaled_base_length_side_hit(self, distance, angle):
+        missing_angle = 180 - string_to_float(self.lowerAngle) - angle
+        return missing_angle * (distance / math.sin(string_to_float(self.lowerAngle)))
+
+    def scaled_base_length_base_hit(self, y_distance):
+        return 2 * y_distance * math.tan(string_to_float(slope))
+
 
 class VPoint:
-    draftPoint = None
     sketchNumber = 0
     X: Final
     Y: Final
@@ -115,6 +139,11 @@ class VPoint:
 
 # Generate Points as a draft object
 vPoints = np.empty(numberOfPoints, dtype=VPoint)
+for i in range(numberOfPoints):
+    vPoints[i] = VPoint()
+
+vPointsXSorted = sorted(vPoints, key=lambda p: p.X)
+vPointsYSorted = sorted(vPoints, key=lambda p: p.Y)
 
 voronoiPart = doc.addObject('App::Part', 'VoronoiPart')
 
@@ -123,15 +152,6 @@ doc.PointGroup.Label = 'VoronoiPoints'
 
 pointGroup.adjustRelativeLinks(voronoiPart)
 voronoiPart.addObject(pointGroup)
-
-for i in range(numberOfPoints):
-    vPoints[i] = VPoint()
-    vPoints[i].draftPoint = Draft.make_point(str(vPoints[i].X) + " mm", str(vPoints[i].Y) + " mm", 0,
-                                             name="VPoint_" + str(i))
-    vPoints[i].draftPoint.adjustRelativeLinks(pointGroup)
-    pointGroup.addObject(vPoints[i].draftPoint)
-
-doc.recompute()
 
 voronoiSketch = doc.addObject("Sketcher::SketchObject", "VoronoiSketch")
 voronoiSketch.Placement = App.Placement(App.Vector(0, 0, 0), App.Rotation(0, 0, 0, 1))
@@ -142,12 +162,10 @@ baseTriangle = Triangle(voronoiSketch)
 baseTriangle.gen_triangle(True)
 baseTriangle.fix_triangle(0, 0)
 
-for i in range(numberOfPoints):  # there must be a more elegant solution
-    voronoiSketch.addExternal(vPoints[i].draftPoint.Label, "Vertex1")
-    vPoints[i].sketchNumber = -3 - i
-    doc.recompute()
-
+for i in range(numberOfPoints):
     vPoints[i].triangle = Triangle(voronoiSketch)
     vPoints[i].triangle.gen_triangle(False)
-    vPoints[i].triangle.move_triangle(vPoints[i])
+    vPoints[i].triangle.fix_triangle(vPoints[i].X, vPoints[i].Y)
     vPoints[i].triangle.set_reference(baseTriangle.base)
+
+doc.recompute()

@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   sodipodi:docname="Collision Planning 2.svg"
+   inkscape:export-filename="/home/marcel/Dokumente/FreeCAD/voronoi/Fundamentals/Collision Planning Side Hit.png"
+   inkscape:export-xdpi="300"
+   inkscape:export-ydpi="300"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="true"
+     inkscape:zoom="5.6282834"
+     inkscape:cx="301.60173"
+     inkscape:cy="182.47127"
+     inkscape:window-width="1920"
+     inkscape:window-height="1043"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer3"
+     inkscape:snap-object-midpoints="true"
+     inkscape:snap-text-baseline="false"
+     inkscape:snap-bbox="true"
+     inkscape:bbox-paths="true"
+     showguides="false"
+     inkscape:snap-grids="true"
+     inkscape:object-nodes="true"
+     inkscape:object-paths="true"
+     inkscape:snap-others="true">
+    <inkscape:grid
+       type="xygrid"
+       id="grid824"
+       spacingx="1"
+       spacingy="1"
+       units="mm" />
+  </sodipodi:namedview>
+  <defs
+     id="defs2" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer4"
+     inkscape:label="Sectors2"
+     style="display:inline"
+     sodipodi:insensitive="true">
+    <path
+       id="path61563"
+       style="fill:#aaeeff;fill-opacity:0.957535;stroke:none;stroke-width:0.999999;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none"
+       d="m 188.97638,18.897638 75.59003,207.873842 75.59107,-207.873842 -75.59107,8e-4 z"
+       transform="scale(0.26458333)"
+       sodipodi:nodetypes="ccccc" />
+    <path
+       style="fill:#c6afe9;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 69.999999,59.999998 20,55.000002 H 125 V 59.999998 Z"
+       id="path21853" />
+    <path
+       style="fill:#e9c6af;stroke:none;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 70,60 50,115 H 14.999999 V 60 Z"
+       id="path22034" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Sectors1"
+     sodipodi:insensitive="true"
+     style="display:none">
+    <g
+       id="g1025"
+       style="stroke:#deaa87">
+      <path
+         style="fill:none;stroke:#deaa87;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="M 125,115 69.999999,59.999998 14.999997,115"
+         id="path882" />
+      <path
+         style="fill:none;stroke:#deaa87;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="M 69.999999,59.999998 V 5"
+         id="path884" />
+    </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer3"
+     inkscape:label="Other Triangles"
+     style="display:inline"
+     sodipodi:insensitive="true">
+    <g
+       id="g21307"
+       transform="translate(11,15)"
+       style="fill:none;stroke:#999999">
+      <path
+         style="fill:none;fill-opacity:0.696769;stroke:#999999;stroke-width:0.352778;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="M 64.999999,64.999999 H 75 L 69.999999,50 Z"
+         id="path21303" />
+      <circle
+         style="fill:none;fill-opacity:0.957535;stroke:#999999;stroke-width:0.264583;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none"
+         id="circle21305"
+         cx="70"
+         cy="60"
+         r="0.13229166" />
+    </g>
+    <g
+       id="g64493"
+       transform="translate(5,-20)"
+       style="fill:none;stroke:#999999">
+      <path
+         style="fill:none;fill-opacity:0.696769;stroke:#999999;stroke-width:0.352778;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="M 64.999999,64.999999 H 75 L 69.999999,50 Z"
+         id="path64489" />
+      <circle
+         style="fill:none;fill-opacity:0.957535;stroke:#999999;stroke-width:0.264583;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none"
+         id="circle64491"
+         cx="70"
+         cy="60"
+         r="0.13229166" />
+    </g>
+    <g
+       id="g64499"
+       transform="translate(-20,5)"
+       style="fill:none;stroke:#999999">
+      <path
+         style="fill:none;fill-opacity:0.696769;stroke:#999999;stroke-width:0.352778;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="M 64.999999,64.999999 H 75 L 69.999999,50 Z"
+         id="path64495" />
+      <circle
+         style="fill:none;fill-opacity:0.957535;stroke:#999999;stroke-width:0.264583;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none"
+         id="circle64497"
+         cx="70"
+         cy="60"
+         r="0.13229166" />
+    </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer8"
+     inkscape:label="Top Hit Calculation"
+     style="display:inline">
+    <text
+       xml:space="preserve"
+       style="font-size:2.11667px;line-height:1.25;font-family:FiraGO;-inkscape-font-specification:FiraGO;text-align:center;text-anchor:middle;display:inline;fill:#5aa02c;fill-opacity:1;stroke-width:0.264583"
+       x="91.572205"
+       y="50.758995"
+       id="text108685"
+       inkscape:export-filename="/home/marcel/Dokumente/FreeCAD/voronoi/Fundamentals/Base Collision scale.png"
+       inkscape:export-xdpi="599.63837"
+       inkscape:export-ydpi="599.63837"><tspan
+         sodipodi:role="line"
+         id="tspan108683"
+         style="font-size:2.11667px;fill:#5aa02c;fill-opacity:1;stroke-width:0.264583"
+         x="91.572205"
+         y="50.758995">D</tspan></text>
+    <g
+       id="g147524"
+       transform="matrix(1.3333334,0,0,1.3333334,-43.333339,-10.66667)"
+       style="stroke-width:0.75"
+       inkscape:export-filename="/home/marcel/Dokumente/FreeCAD/voronoi/Fundamentals/Base Collision scale.png"
+       inkscape:export-xdpi="599.63837"
+       inkscape:export-ydpi="599.63837">
+      <path
+         style="fill:#ffcc00;fill-opacity:0.696769;stroke:none;stroke-width:0.264583;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="M 79.999999,57.999999 H 90 L 84.999999,43 Z"
+         id="path146635" />
+      <circle
+         style="fill:none;fill-opacity:0.957535;stroke:#999999;stroke-width:0.198437;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none"
+         id="circle146637"
+         cx="85"
+         cy="53"
+         r="0.13229166" />
+    </g>
+    <g
+       id="g147530"
+       transform="matrix(1.3333334,0,0,1.3333334,-38.333339,-30.66667)"
+       style="fill:#37abc8;stroke-width:0.75"
+       inkscape:export-filename="/home/marcel/Dokumente/FreeCAD/voronoi/Fundamentals/Base Collision scale.png"
+       inkscape:export-xdpi="599.63837"
+       inkscape:export-ydpi="599.63837">
+      <path
+         style="fill:#37abc8;fill-opacity:0.696769;stroke:none;stroke-width:0.264583;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="M 79.999999,57.999999 H 90 L 84.999999,43 Z"
+         id="path147526" />
+      <circle
+         style="fill:#37abc8;fill-opacity:0.957535;stroke:#999999;stroke-width:0.198437;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none"
+         id="circle147528"
+         cx="85"
+         cy="53"
+         r="0.13229166" />
+    </g>
+    <path
+       style="display:inline;fill:none;stroke:#5aa02c;stroke-width:0.265;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.53, 0.53;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 75,39.999999 h 14.999999 v 19.999999 h -20"
+       id="path106338"
+       inkscape:export-filename="/home/marcel/Dokumente/FreeCAD/voronoi/Fundamentals/Base Collision scale.png"
+       inkscape:export-xdpi="599.63837"
+       inkscape:export-ydpi="599.63837" />
+    <text
+       xml:space="preserve"
+       style="font-size:2.11667px;line-height:1.25;font-family:FiraGO;-inkscape-font-specification:FiraGO;text-align:center;text-anchor:middle;display:inline;fill:#5aa02c;fill-opacity:1;stroke-width:0.264583"
+       x="83.86055"
+       y="57.367821"
+       id="text147636"><tspan
+         sodipodi:role="line"
+         id="tspan147634"
+         style="font-size:2.11667px;fill:#5aa02c;fill-opacity:1;stroke-width:0.264583"
+         x="83.86055"
+         y="57.367821">D</tspan></text>
+    <path
+       style="display:inline;fill:none;stroke:#5aa02c;stroke-width:0.265;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.53, 0.53;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 69.999999,46.666667 H 85 l 0,19.999999 h -8.333333"
+       id="path147638"
+       sodipodi:nodetypes="cccc"
+       inkscape:export-filename="/home/marcel/Dokumente/FreeCAD/voronoi/Fundamentals/Base Collision scale.png"
+       inkscape:export-xdpi="599.63837"
+       inkscape:export-ydpi="599.63837" />
+    <text
+       xml:space="preserve"
+       style="font-size:2.11667px;line-height:1.25;font-family:FiraGO;-inkscape-font-specification:FiraGO;text-align:center;text-anchor:middle;stroke-width:0.264583;fill:#5aa02c;fill-opacity:1"
+       x="72.247536"
+       y="68.637016"
+       id="text151746"
+       inkscape:export-filename="/home/marcel/Dokumente/FreeCAD/voronoi/Fundamentals/Base Collision scale.png"
+       inkscape:export-xdpi="599.63837"
+       inkscape:export-ydpi="599.63837"><tspan
+         sodipodi:role="line"
+         id="tspan151744"
+         style="font-size:2.11667px;stroke-width:0.264583;fill:#5aa02c;fill-opacity:1"
+         x="72.247536"
+         y="68.637016">S</tspan></text>
+  </g>
+  <g
+     inkscape:label="Base Triangle"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <text
+       xml:space="preserve"
+       style="font-size:2.11667px;line-height:1.25;font-family:FiraGO;-inkscape-font-specification:FiraGO;stroke-width:0.264583"
+       x="70"
+       y="67"
+       id="text6124"
+       inkscape:export-filename="/home/marcel/Dokumente/FreeCAD/voronoi/Fundamentals/Base Collision scale.png"
+       inkscape:export-xdpi="599.63837"
+       inkscape:export-ydpi="599.63837"><tspan
+         sodipodi:role="line"
+         id="tspan6122"
+         style="font-size:2.11667px;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         x="70"
+         y="67">1</tspan></text>
+    <g
+       id="g21221"
+       style="fill:none"
+       inkscape:export-filename="/home/marcel/Dokumente/FreeCAD/voronoi/Fundamentals/Base Collision scale.png"
+       inkscape:export-xdpi="599.63837"
+       inkscape:export-ydpi="599.63837">
+      <path
+         style="fill:none;fill-opacity:0.696769;stroke:#000000;stroke-width:0.352778;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="M 64.999999,64.999999 H 75 L 69.999999,50 Z"
+         id="path878" />
+      <circle
+         style="fill:none;fill-opacity:0.957535;stroke:#000000;stroke-width:0.264583;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none"
+         id="path20307"
+         cx="70"
+         cy="60"
+         r="0.13229166" />
+    </g>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 69.999999,50 V 64.999999"
+       id="path139044" />
+    <text
+       xml:space="preserve"
+       style="font-size:2.11667px;line-height:1.25;font-family:FiraGO;-inkscape-font-specification:FiraGO;text-align:center;text-anchor:middle;stroke-width:0.264583"
+       x="70.847687"
+       y="63.19342"
+       id="text143250"><tspan
+         sodipodi:role="line"
+         id="tspan143248"
+         style="font-size:2.11667px;stroke-width:0.264583"
+         x="70.847687"
+         y="63.19342">h</tspan></text>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer7"
+     inkscape:label="Base Hit"
+     style="display:none"
+     sodipodi:insensitive="true">
+    <g
+       id="g78006"
+       transform="matrix(1.8391563,0,0,1.8391563,-48.740941,-25.349378)"
+       style="display:inline;fill:none;stroke:#9955ff;stroke-width:0.543728">
+      <path
+         style="fill:none;fill-opacity:0.696769;stroke:#9955ff;stroke-width:0.191815;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="M 64.999999,64.999999 H 75 L 69.999999,50 Z"
+         id="path78002" />
+      <circle
+         style="fill:none;fill-opacity:0.957535;stroke:#9955ff;stroke-width:0.143861;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none"
+         id="circle78004"
+         cx="70"
+         cy="60"
+         r="0.13229166" />
+    </g>
+    <g
+       id="g78033"
+       transform="matrix(1.8391563,0,0,1.8391563,-66.740941,-25.349378)"
+       style="display:inline;fill:none;stroke:#2ca089;stroke-width:0.543728;stroke-opacity:1">
+      <path
+         style="fill:none;fill-opacity:0.696769;stroke:#2ca089;stroke-width:0.191815;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="M 64.999999,64.999999 H 75 L 69.999999,50 Z"
+         id="path78029" />
+      <circle
+         style="fill:none;fill-opacity:0.957535;stroke:#2ca089;stroke-width:0.143861;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="circle78031"
+         cx="70"
+         cy="60"
+         r="0.13229166" />
+    </g>
+    <g
+       id="g78027"
+       transform="matrix(1.8391563,0,0,1.8391563,-58.740941,-50.349378)"
+       style="display:inline;fill:none;stroke:#ffcc00;stroke-width:0.543728">
+      <path
+         style="fill:none;fill-opacity:0.696769;stroke:#ffcc00;stroke-width:0.191815;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="M 64.999999,64.999999 H 75 L 69.999999,50 Z"
+         id="path78023" />
+      <circle
+         style="fill:none;fill-opacity:0.957535;stroke:#ffcc00;stroke-width:0.143861;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none"
+         id="circle78025"
+         cx="70"
+         cy="60"
+         r="0.13229166" />
+    </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer6"
+     inkscape:label="Side Hit"
+     sodipodi:insensitive="true"
+     style="display:none">
+    <g
+       id="g65621"
+       transform="matrix(1.5244727,0,0,1.5244727,-21.713089,-32.468362)"
+       style="display:inline;fill:none;stroke:#536c5d;stroke-width:0.655965;stroke-opacity:1">
+      <path
+         style="fill:none;fill-opacity:0.696769;stroke:#536c5d;stroke-width:0.23141;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="M 64.999999,64.999999 H 75 L 69.999999,50 Z"
+         id="path65617" />
+      <circle
+         style="fill:none;fill-opacity:0.957535;stroke:#536c5d;stroke-width:0.173557;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="circle65619"
+         cx="70"
+         cy="60"
+         r="0.13229166" />
+    </g>
+    <g
+       id="g65637"
+       transform="matrix(1.5244727,0,0,1.5244727,-51.713089,-30.468362)"
+       style="display:inline;fill:none;stroke:#ff7f2a;stroke-width:0.655965">
+      <path
+         style="fill:none;fill-opacity:0.696769;stroke:#ff7f2a;stroke-width:0.23141;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="M 64.999999,64.999999 H 75 L 69.999999,50 Z"
+         id="path65633" />
+      <circle
+         style="fill:none;fill-opacity:0.957535;stroke:#ff7f2a;stroke-width:0.173557;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none"
+         id="circle65635"
+         cx="70"
+         cy="60"
+         r="0.13229166" />
+    </g>
+    <g
+       id="g65631"
+       transform="matrix(1.5244727,0,0,1.5244727,-36.713089,-31.468362)"
+       style="display:inline;fill:none;stroke:#ffcc00;stroke-width:0.655965">
+      <path
+         style="fill:none;fill-opacity:0.696769;stroke:#ffcc00;stroke-width:0.23141;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="M 64.999999,64.999999 H 75 L 69.999999,50 Z"
+         id="path65627" />
+      <circle
+         style="fill:none;fill-opacity:0.957535;stroke:#ffcc00;stroke-width:0.173557;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none"
+         id="circle65629"
+         cx="70"
+         cy="60"
+         r="0.13229166" />
+    </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer5"
+     inkscape:label="Top Hit"
+     style="display:none"
+     sodipodi:insensitive="true">
+    <g
+       id="g65504"
+       transform="matrix(1.8391563,0,0,1.8391563,-48.740941,-75.349378)"
+       style="display:inline;fill:none;stroke:#536c5d;stroke-width:0.543728">
+      <path
+         style="fill:none;fill-opacity:0.696769;stroke:#536c5d;stroke-width:0.191815;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="M 64.999999,64.999999 H 75 L 69.999999,50 Z"
+         id="path65500" />
+      <circle
+         style="fill:none;fill-opacity:0.957535;stroke:#536c5d;stroke-width:0.143861;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none"
+         id="circle65502"
+         cx="70"
+         cy="60"
+         r="0.13229166" />
+    </g>
+    <g
+       id="g65525"
+       transform="matrix(1.8391563,0,0,1.8391563,-67.740941,-78.349378)"
+       style="display:inline;fill:none;stroke:#0088aa;stroke-width:0.543728">
+      <path
+         style="fill:none;fill-opacity:0.696769;stroke:#0088aa;stroke-width:0.191815;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="M 64.999999,64.999999 H 75 L 69.999999,50 Z"
+         id="path65521" />
+      <circle
+         style="fill:none;fill-opacity:0.957535;stroke:#0088aa;stroke-width:0.143861;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none"
+         id="circle65523"
+         cx="70"
+         cy="60"
+         r="0.13229166" />
+    </g>
+    <g
+       id="g65519"
+       transform="matrix(1.8391563,0,0,1.8391563,-58.740941,-50.349378)"
+       style="display:inline;fill:none;stroke:#ffcc00;stroke-width:0.543728">
+      <path
+         style="fill:none;fill-opacity:0.696769;stroke:#ffcc00;stroke-width:0.191815;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         d="M 64.999999,64.999999 H 75 L 69.999999,50 Z"
+         id="path65515" />
+      <circle
+         style="fill:none;fill-opacity:0.957535;stroke:#ffcc00;stroke-width:0.143861;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none"
+         id="circle65517"
+         cx="70"
+         cy="60"
+         r="0.13229166" />
+    </g>
+  </g>
+</svg>
