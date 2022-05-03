@@ -1,22 +1,23 @@
-from math import tan, atan, radians
+from math import sin, tan, atan, radians, degrees
 import random
 
 import plotly.graph_objects as go
-# import numpy as np
+import numpy as np
 
 from dataclasses import dataclass
 
 
-@dataclass
-class Point:
-    x: float
-    y: float
-    z: float
+
+from Point import Point, distance
+
+THETA = 30
+MEW = 0.5
+DELTA = (180-THETA)/2
+
+NOPOINTS = 2
 
 
 def getTriangleVertices(p: Point, size: float):
-    THETA = 30
-    MEW = 0.5
 
     opposite = size/2
     height = opposite / tan(radians(THETA / 2))
@@ -40,27 +41,44 @@ def pointsToScatter(pointarray, formTriangle: bool):
 
 
 def main():
-    HEIGHT = 1
-    NOPOINTS = 1
+
+    size = 1
 
     points = [Point(random.random()*10, random.random()*10, 0.5) for _ in range(NOPOINTS)]
-    triangles = [getTriangleVertices(points[i], HEIGHT) for i in range(NOPOINTS)]
-
+    triangles = [getTriangleVertices(points[i], size) for i in range(NOPOINTS)]
 
     scattertriangles = []
     for triangle in triangles:
         scattertriangles.append(pointsToScatter(triangle, True))
+
+
+    dist = distance(points[0], points[1])
+    print(abs(points[0].y - points[1].y) / abs(points[0].x - points[1].x))
+    alpha = degrees(atan(abs(points[0].y - points[1].y) / abs(points[0].x - points[1].x)))
+    print(alpha)
+    newsize = dist * sin(radians(180-alpha-DELTA)) / sin(radians(DELTA))
+
+    print(newsize)
+
+    triangles = [getTriangleVertices(points[i], newsize) for i in range(NOPOINTS)]
+    for triangle in triangles:
+        scattertriangles.append(pointsToScatter(triangle, True))
+
+
     scatterpoints = pointsToScatter(points, False)
 
     data = [go.Scatter3d(x=scattertriangles[i][0], y=scattertriangles[i][1], z=scattertriangles[i][2], mode='lines') for i in range(
-        len(triangles))]
+        len(scattertriangles))]
     data.append(go.Scatter3d(x=scatterpoints[0], y=scatterpoints[1], z=scatterpoints[2], mode='markers'))
 
+
     fig = go.Figure(data=data)
-    fig.update_yaxes(
-        scaleanchor="x",
-        scaleratio=1,
-    )
+    fig.update_layout(
+        scene=dict(
+            xaxis=dict(tickmode="linear", range=[-5,15], linewidth=1),
+            yaxis=dict(tickmode="linear", range=[-5,15], linewidth=1),
+            zaxis=dict(tickmode="linear", range=[-5,15], linewidth=1),
+        ))
     fig.show()
 
 
