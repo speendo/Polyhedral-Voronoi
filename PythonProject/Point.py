@@ -12,7 +12,6 @@ class Point:
 
 
 
-
 def pointdistance(p1: Point, p2: Point):
     xdiff = p1.x-p2.x
     ydiff = p1.y-p2.y

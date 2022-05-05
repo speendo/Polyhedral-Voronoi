@@ -1,4 +1,5 @@
 from math import sin, tan, atan, radians, degrees
+from typing import final
 import random
 
 import plotly.graph_objects as go
@@ -6,18 +7,18 @@ import numpy as np
 
 from Point import Point, pointdistance
 
-THETA = 30
-MEW = 0.5
-DELTA = (180 - THETA) / 2
+THETA:final = 30
+MEW:final = 0.5
+DELTA:final = (180 - THETA) / 2
 
-NOPOINTS = 2
+NOPOINTS:final = 2
 
 
-def getTriangleVertices(p: Point, size: float):
-    opposite = size / 2
+def getTriangleVertices(p: Point, scale: float):
+    opposite = scale / 2
     height = opposite / tan(radians(THETA / 2))
-    # opposite = tan(radians(THETA / 2)) * height
 
+    # Points are returned (Top Point, Left Point, Right Point) of triangle
     return [Point(p.x, p.y + MEW * height, p.z),
             Point(p.x - opposite, p.y - height + MEW * height, p.z),
             Point(p.x + opposite, p.y - height + MEW * height, p.z)]
@@ -33,31 +34,38 @@ def pointsToScatter(pointarray, formTriangle: bool):
         zarray.append(pointarray[0].z)
     return [xarray, yarray, zarray]
 
+def calculateMeetingSize(p1: Point, p2: Point):
+
+    # TODO: if im oberen sektor is anders berechnen
+    #       return y difference / height
+    dist = pointdistance(p1, p2)
+    alpha = degrees(atan(abs(p1.y - p2.y) / abs(p1.x - p2.x)))
+    return dist * sin(radians(180 - alpha - DELTA)) / sin(radians(DELTA))
+
 
 def main():
     size = 1
 
-    points = [Point(random.random() * 10, random.random() * 10, 0.5) for _ in range(NOPOINTS)]
+    points = [Point(np.random.uniform(0, 10), np.random.uniform(0, 10), 0.5) for _ in range(NOPOINTS)]
     triangles = [getTriangleVertices(points[i], size) for i in range(NOPOINTS)]
 
-    scattertriangles = []
+    scatter_triangles = []
     for triangle in triangles:
-        scattertriangles.append(pointsToScatter(triangle, True))
+        scatter_triangles.append(pointsToScatter(triangle, True))
 
-    dist = pointdistance(points[0], points[1])
-    alpha = degrees(atan(abs(points[0].y - points[1].y) / abs(points[0].x - points[1].x)))
-    newsize = dist * sin(radians(180 - alpha - DELTA)) / sin(radians(DELTA))
+    # TODO: insert loop und alles andere
+    newsize = calculateMeetingSize(points[0], points[1])
 
     triangles = [getTriangleVertices(points[i], newsize) for i in range(NOPOINTS)]
     for triangle in triangles:
-        scattertriangles.append(pointsToScatter(triangle, True))
+        scatter_triangles.append(pointsToScatter(triangle, True))
 
-    scatterpoints = pointsToScatter(points, False)
+    scatter_points = pointsToScatter(points, False)
 
     colors = ["#%06x" % random.randint(0, 0xFFFFFF) for _ in range(NOPOINTS)]
-    data = [go.Scatter3d(x=scattertriangles[i][0], y=scattertriangles[i][1], z=scattertriangles[i][2],
-                         mode='lines', line={'color': colors[i % NOPOINTS]}) for i in range(len(scattertriangles))]
-    data.append(go.Scatter3d(x=scatterpoints[0], y=scatterpoints[1], z=scatterpoints[2], mode='markers'))
+    data = [go.Scatter3d(x=scatter_triangles[i][0], y=scatter_triangles[i][1], z=scatter_triangles[i][2],
+                         mode='lines', line={'color': colors[i % NOPOINTS]}) for i in range(len(scatter_triangles))]
+    data.append(go.Scatter3d(x=scatter_points[0], y=scatter_points[1], z=scatter_points[2], mode='markers'))
 
     fig = go.Figure(data=data)
     fig.update_layout(
