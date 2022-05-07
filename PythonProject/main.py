@@ -5,66 +5,55 @@ import random
 import plotly.graph_objects as go
 import numpy as np
 
-from Point import Point, pointdistance
+from Point import Point, Points
+from Triangle import Triangle, Triangles
 
-THETA:final = 30
-MEW:final = 0.5
-DELTA:final = (180 - THETA) / 2
-
-NOPOINTS:final = 2
-
-
-def getTriangleVertices(p: Point, scale: float):
-    opposite = scale / 2
-    height = opposite / tan(radians(THETA / 2))
-
-    # Points are returned (Top Point, Left Point, Right Point) of triangle
-    return [Point(p.x, p.y + MEW * height, p.z),
-            Point(p.x - opposite, p.y - height + MEW * height, p.z),
-            Point(p.x + opposite, p.y - height + MEW * height, p.z)]
+NO_POINTS: final = 2
+max_x = 100
+max_y = 50
+max_z = 0
 
 
-def pointsToScatter(pointarray, formTriangle: bool):
-    xarray = [point.x for point in pointarray]
-    yarray = [point.y for point in pointarray]
-    zarray = [point.z for point in pointarray]
-    if formTriangle:
-        xarray.append(pointarray[0].x)
-        yarray.append(pointarray[0].y)
-        zarray.append(pointarray[0].z)
-    return [xarray, yarray, zarray]
+def points_to_scatter(point_array, form_triangle: bool):
+    x_array = [point.x() for point in point_array]
+    y_array = [point.y() for point in point_array]
+    z_array = [point.z() for point in point_array]
+    if form_triangle:
+        x_array.append(point_array[0].x())
+        y_array.append(point_array[0].y())
+        z_array.append(point_array[0].z())
+    return [x_array, y_array, z_array]
 
-def calculateMeetingSize(p1: Point, p2: Point):
 
+def calculate_meeting_scale(p1: Point, p2: Point):
     # TODO: if im oberen sektor is anders berechnen
     #       return y difference / height
-    dist = pointdistance(p1, p2)
-    alpha = degrees(atan(abs(p1.y - p2.y) / abs(p1.x - p2.x)))
+    dist = p1.euclidean_distance(p2)
+    alpha = degrees(atan(abs(p1.y() - p2.y()) / abs(p1.x() - p2.x())))
     return dist * sin(radians(180 - alpha - DELTA)) / sin(radians(DELTA))
 
 
 def main():
-    size = 1
+    points = Points(number_of_points=NO_POINTS, max_x=max_x, max_y=max_y, max_z=max_z)
+    points.set_random()
 
-    points = [Point(np.random.uniform(0, 10), np.random.uniform(0, 10), 0.5) for _ in range(NOPOINTS)]
-    triangles = [getTriangleVertices(points[i], size) for i in range(NOPOINTS)]
+    triangles = Triangles(points)
 
     scatter_triangles = []
+    for triangle in triangles.get():
+        scatter_triangles.append(points_to_scatter(triangle.get_scaled_points(scale=1), True))
+
+    print(triangles.find_next_collision())
+
+    triangles = [get_triangle_vertices(points[i], new_scale) for i in range(NO_POINTS)]
     for triangle in triangles:
-        scatter_triangles.append(pointsToScatter(triangle, True))
+        scatter_triangles.append(points_to_scatter(triangle, True))
 
-    # TODO: insert loop und alles andere
-    newsize = calculateMeetingSize(points[0], points[1])
+    scatter_points = points_to_scatter(points, False)
 
-    triangles = [getTriangleVertices(points[i], newsize) for i in range(NOPOINTS)]
-    for triangle in triangles:
-        scatter_triangles.append(pointsToScatter(triangle, True))
-
-    scatter_points = pointsToScatter(points, False)
-
-    colors = ["#%06x" % random.randint(0, 0xFFFFFF) for _ in range(NOPOINTS)]
+    colors = ["#%06x" % random.randint(0, 0xFFFFFF) for _ in range(NO_POINTS)]
     data = [go.Scatter3d(x=scatter_triangles[i][0], y=scatter_triangles[i][1], z=scatter_triangles[i][2],
-                         mode='lines', line={'color': colors[i % NOPOINTS]}) for i in range(len(scatter_triangles))]
+                         mode='lines', line={'color': colors[i % NO_POINTS]}) for i in range(len(scatter_triangles))]
     data.append(go.Scatter3d(x=scatter_points[0], y=scatter_points[1], z=scatter_points[2], mode='markers'))
 
     fig = go.Figure(data=data)
