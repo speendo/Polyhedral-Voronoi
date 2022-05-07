@@ -8,7 +8,7 @@ import numpy as np
 from Point import Point, Points
 from Triangle import Triangle, Triangles
 
-NO_POINTS: final = 2
+NO_POINTS: final = 5
 max_x = 100
 max_y = 50
 max_z = 0
@@ -25,14 +25,6 @@ def points_to_scatter(point_array, form_triangle: bool):
     return [x_array, y_array, z_array]
 
 
-def calculate_meeting_scale(p1: Point, p2: Point):
-    # TODO: if im oberen sektor is anders berechnen
-    #       return y difference / height
-    dist = p1.euclidean_distance(p2)
-    alpha = degrees(atan(abs(p1.y() - p2.y()) / abs(p1.x() - p2.x())))
-    return dist * sin(radians(180 - alpha - DELTA)) / sin(radians(DELTA))
-
-
 def main():
     points = Points(number_of_points=NO_POINTS, max_x=max_x, max_y=max_y, max_z=max_z)
     points.set_random()
@@ -43,7 +35,8 @@ def main():
     for triangle in triangles.get():
         scatter_triangles.append(points_to_scatter(triangle.get_scaled_points(scale=1), True))
 
-    print(triangles.find_next_collision())
+    while triangles.has_next_collision():
+        print(triangles.find_next_collision().scale)
 
     triangles = [get_triangle_vertices(points[i], new_scale) for i in range(NO_POINTS)]
     for triangle in triangles:

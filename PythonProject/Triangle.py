@@ -62,14 +62,15 @@ class Triangle:
         self.right_points = []
 
         for p in points:
-            if p.y() > self.center.y():
-                if self.left_line.point_position(p) >= 0 and self.right_line.point_position(p) >= 0:
-                    self.top_points.append(p)
-            else:
-                if self.left_line.point_position(p) >= 0:
-                    self.left_points.append(p)
-                elif self.right_line.point_position(p) >= 0:
-                    self.right_points.append(p)
+            if p.id() is not self.center.id():
+                if p.y() > self.center.y():
+                    if self.left_line.point_position(p) >= 0 and self.right_line.point_position(p) >= 0:
+                        self.top_points.append(p)
+                else:
+                    if self.left_line.point_position(p) >= 0:
+                        self.left_points.append(p)
+                    elif self.right_line.point_position(p) >= 0:
+                        self.right_points.append(p)
 
     def calc_side_scale(self, point: Point) -> float:
         dist = self.center.euclidean_distance(point)
@@ -85,7 +86,7 @@ class Triangle:
             self.top_collision = Collision(point=None, scale=float('inf'), has_happened=True)
         else:
             top_collision_point = min(self.top_points, key=lambda p: p.y())
-            top_scale_to_hit = self.calc_top_scale(self.top_collision_point)
+            top_scale_to_hit = self.calc_top_scale(top_collision_point)
             self.top_collision = Collision(top_collision_point, top_scale_to_hit)
 
     def store_left_collision(self):
@@ -115,6 +116,13 @@ class Triangle:
         self.store_left_collision()
         self.store_right_collision()
 
+    def has_next_collision(self) -> bool:
+        if (not self.top_collision.has_happened or
+                not self.left_collision.has_happened or not self.right_collision.has_happened):
+            return True
+        else:
+            return False
+
     def find_next_collision(self) -> Collision:
         return min([self.top_collision, self.left_collision, self.right_collision],
                    key=lambda c: float('Inf') if c is None or c.has_happened else c.scale)
@@ -130,6 +138,12 @@ class Triangles:
 
     def get(self):
         return self.triangles
+
+    def has_next_collision(self) -> bool:
+        for t in self.triangles:
+            if t.has_next_collision():
+                return True
+        return False
 
     def find_next_collision(self) -> Collision:
         return min(self.triangles, key=lambda t: t.find_next_collision().scale)
