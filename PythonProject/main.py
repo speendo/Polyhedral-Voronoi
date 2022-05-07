@@ -6,7 +6,7 @@ import plotly.graph_objects as go
 import numpy as np
 
 from Point import Point, Points
-from Triangle import Triangle, Triangles
+from Triangle import Triangle, Triangles, Collision
 
 NO_POINTS: final = 5
 max_x = 100
@@ -35,12 +35,14 @@ def main():
     for triangle in triangles.get():
         scatter_triangles.append(points_to_scatter(triangle.get_scaled_points(scale=1), True))
 
+    scale_list = [Collision]
     while triangles.has_next_collision():
-        print(triangles.find_next_collision().scale)
+        col = triangles.find_next_collision()
+        print(col.get_scale())
+        col.collide()
 
-    triangles = [get_triangle_vertices(points[i], new_scale) for i in range(NO_POINTS)]
-    for triangle in triangles:
-        scatter_triangles.append(points_to_scatter(triangle, True))
+    for col in Collision():
+        scatter_triangles.append(points_to_scatter(triangle.get_scaled_points(), True))
 
     scatter_points = points_to_scatter(points, False)
 

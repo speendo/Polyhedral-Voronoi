@@ -16,6 +16,12 @@ class Collision:
     def collide(self):
         self.has_happened = True
 
+    def get_scale(self) -> float:
+        if self.has_happened:
+            return float('inf')
+        else:
+            return self.scale
+
 
 def get_triangle_vertices(p: Point, mew: float, height: float, scale: float = 1) -> list[Point]:
     opposite = scale / 2
@@ -103,7 +109,7 @@ class Triangle:
     def store_right_collision(self):
         if not self.right_points:
             # ToDo: handle no collisions
-            self.top_collision = Collision(point=None, scale=float('inf'), has_happened=True)
+            self.right_collision = Collision(point=None, scale=float('inf'), has_happened=True)
         else:
             self.right_collision = Collision(None, float('inf'))
             for p in self.right_points:
@@ -124,8 +130,8 @@ class Triangle:
             return False
 
     def find_next_collision(self) -> Collision:
-        return min([self.top_collision, self.left_collision, self.right_collision],
-                   key=lambda c: float('Inf') if c is None or c.has_happened else c.scale)
+        cols = [self.top_collision, self.left_collision, self.right_collision]
+        return min((c for c in cols if c is not None), key=lambda c: c.get_scale())
 
 
 class Triangles:
@@ -146,4 +152,4 @@ class Triangles:
         return False
 
     def find_next_collision(self) -> Collision:
-        return min(self.triangles, key=lambda t: t.find_next_collision().scale)
+        return min(self.triangles, key=lambda t: t.find_next_collision().get_scale()).find_next_collision()
