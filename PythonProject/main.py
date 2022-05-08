@@ -35,12 +35,13 @@ def main():
     for triangle in triangles.get():
         scatter_triangles.append(points_to_scatter(triangle.get_scaled_points(scale=1), True))
 
+    collisions = []
     scale_list = []
     while triangles.has_next_collision():
         col = triangles.find_next_collision()
-        print(col.get_scale())
         scale_list.append(col.get_scale())
         col.collide()
+        collisions.append(col)
 
     for scale in scale_list:
         for triangle in triangles.get():
