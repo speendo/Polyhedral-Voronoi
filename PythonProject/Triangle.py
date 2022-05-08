@@ -23,8 +23,9 @@ class Collision:
             return self.scale
 
 
-def get_triangle_vertices(p: Point, mew: float, height: float, scale: float = 1) -> list[Point]:
+def get_triangle_vertices(p: Point, mew: float, theta: float, scale: float = 1) -> list[Point]:
     opposite = scale / 2
+    height = opposite / tan(radians(theta / 2))
 
     # Points are returned (Top Point, Left Point, Right Point) of triangle
     return [Point(p.x(), p.y() + mew * height, p.z()),
@@ -39,7 +40,7 @@ class Triangle:
 
     base_height = 1 / 2 / tan(radians(THETA / 2))
 
-    origin_triangle = get_triangle_vertices(p=Point(0, 0, 0), mew=MEW, height=base_height)
+    origin_triangle = get_triangle_vertices(p=Point(0, 0, 0), mew=MEW, theta=THETA)
     base_line = Line2D(origin_triangle[1], end_point=origin_triangle[2])
     left_line = Line2D(origin_triangle[1], end_point=origin_triangle[0])
     right_line = Line2D(origin_triangle[2], end_point=origin_triangle[0])
@@ -60,7 +61,7 @@ class Triangle:
         self.left_collision: Collision = None
 
     def get_scaled_points(self, scale: float) -> list[Point]:
-        return get_triangle_vertices(p=self.center, mew=self.MEW, height=self.base_height, scale=scale)
+        return get_triangle_vertices(p=self.center, mew=self.MEW, theta=self.THETA, scale=scale)
 
     def categorize_points(self, points: Points):
         self.top_points = []

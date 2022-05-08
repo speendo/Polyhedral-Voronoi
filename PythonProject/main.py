@@ -47,7 +47,6 @@ def main():
             scatter_triangles.append(points_to_scatter(triangle.get_scaled_points(scale=scale), True))
 
     scatter_points = points_to_scatter(points.get(), False)
-    print(scatter_points)
 
     colors = ["#%06x" % random.randint(0, 0xFFFFFF) for _ in range(NO_POINTS)]
     data = [go.Scatter3d(x=scatter_triangles[i][0], y=scatter_triangles[i][1], z=scatter_triangles[i][2],
