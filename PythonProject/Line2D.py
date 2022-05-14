@@ -1,4 +1,11 @@
+from enum import IntEnum, auto
 from Point import Point
+
+
+class Pos(IntEnum):
+    ABOVE = -1
+    BELOW = 1
+    ON = 0
 
 
 class Line2D:
@@ -6,17 +13,32 @@ class Line2D:
         self.point: Point = point
         self.end_point: Point = end_point
         if self.end_point is not None:
-            self.slope: float = (self.end_point.y() - self.point.y()) / (self.end_point.x() - self.point.x())
+            if self.end_point.x() - self.point.x() != 0:
+                self.slope: float = (self.end_point.y() - self.point.y()) / (self.end_point.x() - self.point.x())
+            else:
+                self.slope: float = int('inf')
         else:
             self.slope: float = slope
         self.intercept = self.point.y() - self.point.x()*self.slope
 
     # returns +1 for above line, -1 for below line, 0 for on line
-    def point_position(self, point: Point) -> int:
+    def point_position(self, point: Point) -> Pos:
         y_value = point.x() * self.slope + self.intercept
         if point.y() > y_value:
-            return +1
+            return Pos.ABOVE
         elif point.y() < y_value:
-            return -1
+            return Pos.BELOW
         else:
-            return 0
+            return Pos.ON
+
+    def point_at_x(self, x: float) -> Point:
+        return Point(x=x, y=x * self.slope + self.intercept, z=0)
+
+    def point_at_y(self, y: float) -> Point:
+        return Point(x=(y - self.intercept) / self.slope, y=y, z=0)
+
+    def end_point_at_x(self, x: float):
+        self.end_point = self.point_at_x(x)
+
+    def end_point_at_y(self, y: float):
+        self.end_point = self.point_at_y(y)
