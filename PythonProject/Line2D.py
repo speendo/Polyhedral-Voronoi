@@ -42,3 +42,16 @@ class Line2D:
 
     def end_point_at_y(self, y: float):
         self.end_point = self.point_at_y(y)
+
+    def cross_lines(self, other_line: 'Line2D'):
+        if self.slope != other_line.slope:
+            x: float = 0
+            if self.slope == float('inf'):
+                x = self.point.x()
+            elif other_line.slope == float('inf'):
+                x = other_line.point.x()
+            else:
+                x = (other_line.intercept - self.intercept) / (self.slope - other_line.slope)
+
+            other_line.end_point_at_x(x)
+            self.end_point_at_x(x)
