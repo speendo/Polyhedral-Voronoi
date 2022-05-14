@@ -9,7 +9,7 @@ from Point import Point, Points
 from Triangle import Triangle, Triangles, Collision
 
 NO_POINTS: final = 5
-max_x = 100
+max_x = 50
 max_y = 50
 max_z = 0
 
@@ -35,16 +35,19 @@ def main():
     for triangle in triangles.get():
         scatter_triangles.append(points_to_scatter(triangle.get_scaled_points(scale=1), True))
 
-    scale_list = [Collision]
+    collisions = []
+    scale_list = []
     while triangles.has_next_collision():
         col = triangles.find_next_collision()
-        print(col.get_scale())
+        scale_list.append(col.get_scale())
         col.collide()
+        collisions.append(col)
 
-    for col in Collision():
-        scatter_triangles.append(points_to_scatter(triangle.get_scaled_points(), True))
+    for scale in scale_list:
+        for triangle in triangles.get():
+            scatter_triangles.append(points_to_scatter(triangle.get_scaled_points(scale=scale), True))
 
-    scatter_points = points_to_scatter(points, False)
+    scatter_points = points_to_scatter(points.get(), False)
 
     colors = ["#%06x" % random.randint(0, 0xFFFFFF) for _ in range(NO_POINTS)]
     data = [go.Scatter3d(x=scatter_triangles[i][0], y=scatter_triangles[i][1], z=scatter_triangles[i][2],
@@ -54,9 +57,9 @@ def main():
     fig = go.Figure(data=data)
     fig.update_layout(
         scene=dict(
-            xaxis=dict(tickmode="linear", range=[-5, 15], linewidth=1),
-            yaxis=dict(tickmode="linear", range=[-5, 15], linewidth=1),
-            zaxis=dict(tickmode="linear", range=[-5, 15], linewidth=1),
+            xaxis=dict(tickmode="linear", range=[0, max_x], linewidth=1),
+            yaxis=dict(tickmode="linear", range=[0, max_y], linewidth=1),
+            zaxis=dict(tickmode="linear", range=[0, max_z], linewidth=1),
         ))
     fig.show()
 
