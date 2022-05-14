@@ -1,3 +1,4 @@
+from enum import Enum, auto
 from math import tan, radians, degrees, atan, sin
 from typing import final
 
@@ -7,10 +8,18 @@ from Line2D import Line2D
 from Point import Point, Points
 
 
+class Corner(Enum):
+    TOP = auto()
+    LEFT = auto()
+    RIGHT = auto()
+
+
 class Collision:
-    def __init__(self, point: Point, scale: float, has_happened: bool = False):
+    def __init__(self, point: Point, scale: float, corner: Corner, triangle: 'Triangle', has_happened: bool = False):
         self.point = point
         self.scale = scale
+        self.corner = corner
+        self.triangle = triangle
         self.has_happened = has_happened
 
     def collide(self):
@@ -89,33 +98,37 @@ class Triangle:
     def store_top_collision(self):
         if not self.top_points:
             # ToDo: handle no collisions
-            self.top_collision = Collision(point=None, scale=float('inf'), has_happened=True)
+            self.top_collision = Collision(point=None, scale=float('inf'), corner=Corner.TOP, triangle=self,
+                                           has_happened=True)
         else:
             top_collision_point = min(self.top_points, key=lambda p: p.y())
             top_scale_to_hit = self.calc_top_scale(top_collision_point)
-            self.top_collision = Collision(top_collision_point, top_scale_to_hit)
+            self.top_collision = Collision(point=top_collision_point, scale=top_scale_to_hit, corner=Corner.TOP,
+                                           triangle=self)
 
     def store_left_collision(self):
         if not self.left_points:
             # ToDo: handle no collisions
-            self.left_collision = Collision(point=None, scale=float('inf'), has_happened=True)
+            self.left_collision = Collision(point=None, scale=float('inf'), corner=Corner.LEFT, triangle=self,
+                                            has_happened=True)
         else:
-            self.left_collision = Collision(None, float('inf'))
+            self.left_collision = Collision(point=None, scale=float('inf'), corner=Corner.LEFT, triangle=self)
             for p in self.left_points:
                 cur_scale = self.calc_side_scale(p)
                 if cur_scale < self.left_collision.scale:
-                    self.left_collision = Collision(p, cur_scale)
+                    self.left_collision = Collision(point=p, scale=cur_scale, corner=Corner.LEFT, triangle=self)
 
     def store_right_collision(self):
         if not self.right_points:
             # ToDo: handle no collisions
-            self.right_collision = Collision(point=None, scale=float('inf'), has_happened=True)
+            self.right_collision = Collision(point=None, scale=float('inf'), corner=Corner.RIGHT, triangle=self,
+                                             has_happened=True)
         else:
-            self.right_collision = Collision(None, float('inf'))
+            self.right_collision = Collision(point=None, scale=float('inf'), corner=Corner.RIGHT, triangle=self)
             for p in self.right_points:
                 cur_scale = self.calc_side_scale(p)
                 if cur_scale < self.right_collision.scale:
-                    self.right_collision = Collision(p, cur_scale)
+                    self.right_collision = Collision(point=p, scale=cur_scale, corner=Corner.RIGHT, triangle=self)
 
     def store_collisions(self):
         self.store_top_collision()
