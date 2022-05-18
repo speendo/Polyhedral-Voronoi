@@ -43,6 +43,20 @@ def main():
         col.collide()
         collisions.append(col)
 
+    collisions_points = []
+    for triangle in triangles.get():
+        point = triangle.top_collision.point
+        if point is not None:
+            collisions_points.append(point)
+        point = triangle.left_collision.point
+        if point is not None:
+            collisions_points.append(point)
+        point = triangle.right_collision.point
+        if point is not None:
+            collisions_points.append(point)
+
+    scatter_collisions = points_to_scatter(collisions_points, False)
+
     for scale in scale_list:
         for triangle in triangles.get():
             scatter_triangles.append(points_to_scatter(triangle.get_scaled_points(scale=scale), True))
@@ -52,7 +66,9 @@ def main():
     colors = ["#%06x" % random.randint(0, 0xFFFFFF) for _ in range(NO_POINTS)]
     data = [go.Scatter3d(x=scatter_triangles[i][0], y=scatter_triangles[i][1], z=scatter_triangles[i][2],
                          mode='lines', line={'color': colors[i % NO_POINTS]}) for i in range(len(scatter_triangles))]
-    data.append(go.Scatter3d(x=scatter_points[0], y=scatter_points[1], z=scatter_points[2], mode='markers'))
+    #data.append(go.Scatter3d(x=scatter_points[0], y=scatter_points[1], z=scatter_points[2], mode='markers'))
+    data.append(go.Scatter3d(x=scatter_collisions[0], y=scatter_collisions[1], z=scatter_collisions[2],
+                             mode='markers', marker={'color': 'red'}))
 
     fig = go.Figure(data=data)
     fig.update_layout(

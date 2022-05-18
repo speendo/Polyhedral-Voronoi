@@ -16,7 +16,7 @@ class Line2D:
             if self.end_point.x() - self.point.x() != 0:
                 self.slope: float = (self.end_point.y() - self.point.y()) / (self.end_point.x() - self.point.x())
             else:
-                self.slope: float = int('inf')
+                self.slope: float = float('inf')
         else:
             self.slope: float = slope
         self.intercept = self.point.y() - self.point.x()*self.slope

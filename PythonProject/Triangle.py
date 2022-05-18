@@ -27,7 +27,7 @@ class Collision:
 
 
 class TopCollision(Collision):
-    def __init__(self, point: Point, scale: float, triangle: 'Triangle', max_x: float, min_x: float = 0,
+    def __init__(self, point: Point, scale: float, triangle: 'Triangle', max_x: float = 50, min_x: float = 0,
                  min_y: float = 0, has_happened: bool = False):
         super().__init__(point, scale, triangle, has_happened)
         self.line1 = self.generate_line("left", min_x, min_y, max_x)
@@ -45,7 +45,7 @@ class TopCollision(Collision):
 
 
 class LeftCollision(Collision):
-    def __init__(self, point: Point, scale: float, triangle: 'Triangle', max_y: float, min_x: float = 0,
+    def __init__(self, point: Point, scale: float, triangle: 'Triangle', max_y: float = 50, min_x: float = 0,
                  min_y: float = 0, has_happened: bool = False):
         super().__init__(point, scale, triangle, has_happened)
         self.line1 = self.generate_vertical_line(max_y)
@@ -56,12 +56,12 @@ class LeftCollision(Collision):
 
     def generate_left_line(self, min_x, min_y):
         line = Line2D(point=self.point, slope=self.triangle.left_line.slope / 2)
-        line.end_point = max([line.point_at_x(min_y), line.point_at_y(min_x)], key=lambda p: p.y)
+        line.end_point = max([line.point_at_x(min_y), line.point_at_y(min_x)], key=lambda p: p.y())
         return line
 
 
 class RightCollision(Collision):
-    def __init__(self, point: Point, scale: float, triangle: 'Triangle', max_x: float, max_y: float, min_y: float = 0,
+    def __init__(self, point: Point, scale: float, triangle: 'Triangle', max_x: float = 50, max_y: float = 50, min_y: float = 0,
                  has_happened: bool = False):
         super().__init__(point, scale, triangle, has_happened)
         self.line1 = self.generate_vertical_line(max_y)
@@ -72,7 +72,7 @@ class RightCollision(Collision):
 
     def generate_right_line(self, max_x, min_y):
         line = Line2D(point=self.point, slope=self.triangle.right_line.slope / 2)
-        line.end_point = max([line.point_at_x(min_y), line.point_at_y(max_x)], key=lambda p: p.y)
+        line.end_point = max([line.point_at_x(min_y), line.point_at_y(max_x)], key=lambda p: p.y())
         return line
 
 
