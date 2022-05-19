@@ -8,7 +8,7 @@ import numpy as np
 from Point import Point, Points
 from Triangle import Triangle, Triangles, Collision
 
-NO_POINTS: final = 5
+NO_POINTS: final = 3
 max_x = 50
 max_y = 50
 max_z = 0

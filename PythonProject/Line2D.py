@@ -3,8 +3,8 @@ from Point import Point
 
 
 class Pos(IntEnum):
-    ABOVE = -1
-    BELOW = 1
+    BELOW = -1
+    ABOVE = 1
     ON = 0
 
 

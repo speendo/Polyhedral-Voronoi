@@ -113,6 +113,24 @@ class Triangle:
         self.right_collision: Collision = None
         self.left_collision: Collision = None
 
+    def get_scaled_top_point(self, scale: float) -> Point:
+        opposite = scale / 2
+        height = opposite / tan(radians(self.THETA / 2))
+
+        return Point(self.center.x(), self.center.y() + self.MEW * height, self.center.z())
+
+    def get_scaled_left_point(self, scale: float) -> Point:
+        opposite = scale / 2
+        height = opposite / tan(radians(self.THETA / 2))
+
+        return Point(self.center.x() - opposite, self.center.y() - height + self.MEW * height, self.center.z())
+
+    def get_scaled_right_point(self, scale: float) -> Point:
+        opposite = scale / 2
+        height = opposite / tan(radians(self.THETA / 2))
+
+        return Point(self.center.x() + opposite, self.center.y() - height + self.MEW * height, self.center.z())
+
     def get_scaled_points(self, scale: float) -> list[Point]:
         return get_triangle_vertices(p=self.center, mew=self.MEW, theta=self.THETA, scale=scale)
 
@@ -147,7 +165,8 @@ class Triangle:
         else:
             top_collision_point = min(self.top_points, key=lambda p: p.y())
             top_scale_to_hit = self.calc_top_scale(top_collision_point)
-            self.top_collision = TopCollision(point=top_collision_point, scale=top_scale_to_hit, triangle=self)
+            self.top_collision = TopCollision(point=self.get_scaled_top_point(top_scale_to_hit), scale=top_scale_to_hit,
+                                              triangle=self)
 
     def store_left_collision(self):
         if not self.left_points:
@@ -155,10 +174,13 @@ class Triangle:
             self.left_collision = Collision(point=None, scale=float('inf'), triangle=self, has_happened=True)
         else:
             self.left_collision = Collision(point=None, scale=float('inf'), triangle=self)
+            scale = float('inf')
             for p in self.left_points:
                 cur_scale = self.calc_side_scale(p)
-                if cur_scale < self.left_collision.scale:
-                    self.left_collision = LeftCollision(point=p, scale=cur_scale, triangle=self)
+                if cur_scale < scale:
+                    scale = cur_scale
+
+            self.left_collision = LeftCollision(point=self.get_scaled_left_point(scale), scale=cur_scale, triangle=self)
 
     def store_right_collision(self):
         if not self.right_points:
@@ -166,10 +188,14 @@ class Triangle:
             self.right_collision = Collision(point=None, scale=float('inf'), triangle=self, has_happened=True)
         else:
             self.right_collision = Collision(point=None, scale=float('inf'), triangle=self)
+            scale = float('inf')
             for p in self.right_points:
                 cur_scale = self.calc_side_scale(p)
                 if cur_scale < self.right_collision.scale:
-                    self.right_collision = RightCollision(point=p, scale=cur_scale, triangle=self)
+                    scale = cur_scale
+
+            self.right_collision = RightCollision(point=self.get_scaled_right_point(scale), scale=cur_scale,
+                                                  triangle=self)
 
     def store_collisions(self):
         self.store_top_collision()
