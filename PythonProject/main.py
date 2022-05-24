@@ -5,10 +5,10 @@ import random
 import plotly.graph_objects as go
 import numpy as np
 
-from Point import Point, Points
-from Triangle import Triangle, Triangles, Collision
+from Point import Point
+from Triangle import Triangles
 
-NO_POINTS: final = 3
+NO_POINTS: final = 4
 max_x = 50
 max_y = 50
 max_z = 0
@@ -26,14 +26,18 @@ def points_to_scatter(point_array, form_triangle: bool):
 
 
 def main():
-    points = Points(number_of_points=NO_POINTS, max_x=max_x, max_y=max_y, max_z=max_z)
-    points.set_random()
+
+    points = [Point(np.random.uniform(0,max_x), np.random.uniform(0,max_y),
+                    np.random.uniform(0,max_z), i) for i in range(NO_POINTS)]
+    points = [
+
+        Point(42.736, 24.199, 0, 2),
+        Point(47.664, 3.525, 0, 1),
+    ]
 
     triangles = Triangles(points)
 
     scatter_triangles = []
-    for triangle in triangles.get():
-        scatter_triangles.append(points_to_scatter(triangle.get_scaled_points(scale=1), True))
 
     collisions = []
     scale_list = []
@@ -59,23 +63,24 @@ def main():
 
     for scale in scale_list:
         for triangle in triangles.get():
-            scatter_triangles.append(points_to_scatter(triangle.get_scaled_points(scale=scale), True))
+            scatter_triangles.append(points_to_scatter(triangle.get_triangle_vertices(scale=scale), True))
 
-    scatter_points = points_to_scatter(points.get(), False)
+    scatter_points = points_to_scatter(points, False)
 
     colors = ["#%06x" % random.randint(0, 0xFFFFFF) for _ in range(NO_POINTS)]
     data = [go.Scatter3d(x=scatter_triangles[i][0], y=scatter_triangles[i][1], z=scatter_triangles[i][2],
                          mode='lines', line={'color': colors[i % NO_POINTS]}) for i in range(len(scatter_triangles))]
-    #data.append(go.Scatter3d(x=scatter_points[0], y=scatter_points[1], z=scatter_points[2], mode='markers'))
+    data.append(go.Scatter3d(x=scatter_points[0], y=scatter_points[1], z=scatter_points[2],
+                             mode='markers', marker={'color': 'blue'}))
     data.append(go.Scatter3d(x=scatter_collisions[0], y=scatter_collisions[1], z=scatter_collisions[2],
                              mode='markers', marker={'color': 'red'}))
 
     fig = go.Figure(data=data)
     fig.update_layout(
         scene=dict(
-            xaxis=dict(tickmode="linear", range=[0, max_x], linewidth=1),
-            yaxis=dict(tickmode="linear", range=[0, max_y], linewidth=1),
-            zaxis=dict(tickmode="linear", range=[0, max_z], linewidth=1),
+            xaxis=dict(tickmode="linear", range=[-30, max_x+30], linewidth=1),
+            yaxis=dict(tickmode="linear", range=[-30, max_y+30], linewidth=1),
+            zaxis=dict(tickmode="linear", range=[-30, max_z+30], linewidth=1),
         ))
     fig.show()
 

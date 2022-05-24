@@ -20,19 +20,3 @@ class Point:
 
     def euclidean_distance(self, other_point: 'Point') -> float:
         return np.linalg.norm(self.coords - other_point.coords)
-
-
-class Points:
-    def __init__(self, number_of_points, max_x, max_y, max_z):
-        self.points = np.empty(number_of_points, dtype=Point)
-        self.max_x = max_x
-        self.max_y = max_y
-        self.max_z = max_z
-
-    def set_random(self):
-        for i in range(self.points.size):
-            self.points[i] = Point(x=np.random.uniform(0, self.max_x), y=np.random.uniform(0, self.max_y),
-                                   z=np.random.uniform(0, self.max_z), id_number=i)
-
-    def get(self):
-        return self.points
