@@ -30,9 +30,8 @@ def main():
     points = [Point(np.random.uniform(0,max_x), np.random.uniform(0,max_y),
                     np.random.uniform(0,max_z), i) for i in range(NO_POINTS)]
     points = [
-
-        Point(42.736, 24.199, 0, 2),
         Point(47.664, 3.525, 0, 1),
+        Point(42.736, 24.199, 0, 2),
     ]
 
     triangles = Triangles(points)

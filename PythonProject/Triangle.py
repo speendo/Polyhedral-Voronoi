@@ -86,18 +86,15 @@ class Triangle:
         alpha = degrees(atan(abs(point.y() - self.center.y()) / abs(point.x() - self.center.x())))
         return dist * sin(radians(180 - alpha - Triangle.DELTA)) / sin(radians(Triangle.DELTA))
 
-
     def store_top_collision(self):
         if not self.top_points:
             # ToDo: handle no collisions
             self.top_collision = Collision(point=None, scale=float('inf'), triangle=self, has_happened=True)
         else:
-            scale = float('inf')
-            for p in self.top_points:
-                cur_scale = self.calc_scale(p, False)
-                if cur_scale < scale:
-                    scale = cur_scale
-            self.top_collision = TopCollision(point=self.get_scaled_top_point(scale), scale=scale, triangle=self)
+            top_collision_point = min(self.top_points, key=lambda p: p.y())
+            top_scale_to_hit = self.calc_scale(top_collision_point, True)
+            self.top_collision = TopCollision(point=self.get_scaled_top_point(top_scale_to_hit), scale=top_scale_to_hit,
+                                              triangle=self)
 
     def store_left_collision(self):
         if not self.left_points:
