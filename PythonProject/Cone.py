@@ -19,6 +19,7 @@ class Cone:
         self.THETA: final = theta
         self.MEW: final = mew
         self.DELTA: final = (180 - theta) / 2
+        self.base_height = 1 / 2 / tan(radians(theta / 2))
 
     def get_triangle_vertices(self, scale: float, bottom_vector: glm.vec3) -> list[Point]:
         bottom_vector.y = 0
@@ -35,9 +36,10 @@ class Cone:
                 Point(bottom_center - bottom_vector * opposite),
                 Point(bottom_center + bottom_vector * opposite)]
 
+    # TODO: Rewrite for 3D
     def calc_scale(self, point: Point, top: bool) -> float:
         if top:
-            return (point.y - self.CENTER.y) / (2 * tan(radians(self.THETA / 2)))
+            return (point.y - self.CENTER.y) / (1 / 2 / tan(radians(self.THETA / 2)))
         dist = self.CENTER.euclidean_distance(point)
         alpha = degrees(atan(abs((point.y - self.CENTER.y) / (point.x - self.CENTER.x))))
         return dist * sin(radians(180 - alpha - self.DELTA)) / sin(radians(self.DELTA))
@@ -53,5 +55,13 @@ class Distance:
         self.c1: final = c1
         self.c2: final = c2
 
-        self.scale: final = c1.calc_scale(c2.CENTER, False)
+        topcone = max(c1, c2, key=lambda c: c.CENTER.y)
+        bottomcone = min(c1, c2, key=lambda c: c.CENTER.y)
+        ydiff = topcone.CENTER.y - bottomcone.CENTER.y
+        xzdiff = glm.length(glm.vec2(topcone.CENTER.x - bottomcone.CENTER.x, topcone.CENTER.z - bottomcone.CENTER.z))
+        angle = degrees(atan(xzdiff/ydiff))
+
+        print(c1.THETA/2 > angle)
+
+        self.scale: final = c1.calc_scale(c2.CENTER, c1.THETA/2 > angle)
 

@@ -35,6 +35,7 @@ def main(n, t, m):
 
     points = [Point(glm.vec3(random.random() * MAX_X, random.random() * MAX_Y,
                     random.random() * MAX_Z), i) for i in range(NO_POINTS)]
+    points = [Point(glm.vec3(30, 0, 0)), Point(glm.vec3(38,30,0))]
     cones = [Cone(point, THETA, MEW) for point in points]
 
     distances = []

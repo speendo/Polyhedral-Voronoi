@@ -23,10 +23,10 @@ class Line2D:
 
     # returns +1 for above line, -1 for below line, 0 for on line
     def point_position(self, point: Point) -> Pos:
-        y_value = point.x() * self.slope + self.intercept
-        if point.y() > y_value:
+        y_value = point.x * self.slope + self.intercept
+        if point.y > y_value:
             return Pos.ABOVE
-        elif point.y() < y_value:
+        elif point.y < y_value:
             return Pos.BELOW
         else:
             return Pos.ON
@@ -47,9 +47,9 @@ class Line2D:
         if self.slope != other_line.slope:
             x: float = 0
             if self.slope == float('inf'):
-                x = self.point.x()
+                x = self.point.x
             elif other_line.slope == float('inf'):
-                x = other_line.point.x()
+                x = other_line.point.x
             else:
                 x = (other_line.intercept - self.intercept) / (self.slope - other_line.slope)
 
