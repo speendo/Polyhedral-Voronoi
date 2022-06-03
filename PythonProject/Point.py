@@ -1,6 +1,5 @@
 from typing import final
 
-import numpy as np
 import glm
 
 class Point:
@@ -21,3 +20,4 @@ class Point:
 
     def vectorBetween(self, other_point: 'Point') -> glm.vec3:
         return glm.vec3(other_point.x - self.x, other_point.y - self.y, other_point.z - self.z)
+

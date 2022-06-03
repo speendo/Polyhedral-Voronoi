@@ -8,7 +8,7 @@ import numpy as np
 import glm  # install PyGLM
 
 from Point import Point
-from Cone import Cone
+from Cone import Cone, Distance
 from Triangle import Triangles
 
 
@@ -35,10 +35,21 @@ def main(n, t, m):
 
     points = [Point(glm.vec3(random.random() * MAX_X, random.random() * MAX_Y,
                     random.random() * MAX_Z), i) for i in range(NO_POINTS)]
-
     cones = [Cone(point, THETA, MEW) for point in points]
-    bottom_vec = cones[0].CENTER.vectorBetween(cones[1].CENTER)
-    triangles = [cone.get_triangle_vertices(10, bottom_vec) for cone in cones]
+
+    distances = []
+    for i in range(NO_POINTS):
+        for j in range(i+1, NO_POINTS):
+            distances.append(Distance(cones[i], cones[j]))
+
+    distances.sort(key=lambda d: d.scale)
+
+    triangles = []
+    for distance in distances:
+        vector_between = distance.c1.CENTER.vectorBetween(distance.c2.CENTER)
+        triangles.append(distance.c1.get_triangle_vertices(distance.scale, vector_between))
+        triangles.append(distance.c2.get_triangle_vertices(distance.scale, vector_between))
+        break
 
     scatter_points = points_to_scatter(points, False)
     scatter_triangles = []
@@ -50,48 +61,10 @@ def main(n, t, m):
                          mode='lines', line={'color': colors[i % NO_POINTS]}) for i in range(len(scatter_triangles))]
     data.append(go.Scatter3d(x=scatter_points[0], y=scatter_points[1], z=scatter_points[2],
                              mode='markers', marker={'color': 'blue'}))
-    """
-    triangles = Triangles(points)
 
-    scatter_triangles = []
+    # data.append(go.Scatter3d(x=scatter_collisions[0], y=scatter_collisions[1], z=scatter_collisions[2],
+    #                         mode='markers', marker={'color': 'red'}))
 
-    collisions = []
-    scale_list = []
-    while triangles.has_next_collision():
-        col = triangles.find_next_collision()
-        scale_list.append(col.get_scale())
-        col.collide()
-        collisions.append(col)
-
-    collisions_points = []
-    for triangle in triangles.get():
-        point = triangle.top_collision.point
-        if point is not None:
-            collisions_points.append(point)
-        point = triangle.left_collision.point
-        if point is not None:
-            collisions_points.append(point)
-        point = triangle.right_collision.point
-        if point is not None:
-            collisions_points.append(point)
-
-    scatter_collisions = points_to_scatter(collisions_points, False)
-
-    for scale in scale_list:
-        for triangle in triangles.get():
-            scatter_triangles.append(points_to_scatter(triangle.get_triangle_vertices(scale=scale), True))
-
-    scatter_points = points_to_scatter(points, False)
-
-    colors = ["#%06x" % random.randint(0, 0xFFFFFF) for _ in range(NO_POINTS)]
-    data = [go.Scatter3d(x=scatter_triangles[i][0], y=scatter_triangles[i][1], z=scatter_triangles[i][2],
-                         mode='lines', line={'color': colors[i % NO_POINTS]}) for i in range(len(scatter_triangles))]
-    data.append(go.Scatter3d(x=scatter_points[0], y=scatter_points[1], z=scatter_points[2],
-                             mode='markers', marker={'color': 'blue'}))
-    data.append(go.Scatter3d(x=scatter_collisions[0], y=scatter_collisions[1], z=scatter_collisions[2],
-                             mode='markers', marker={'color': 'red'}))
-
-    """
     fig = go.Figure(data=data)
     fig.update_layout(
         scene=dict(
@@ -103,7 +76,7 @@ def main(n, t, m):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) > 3 and 0 < float(sys.argv[3]) < 1 and 0 < float(sys.argv[2]) < 90:
+    if len(sys.argv) > 3 and 0 <= float(sys.argv[3]) <= 1 and 0 <= float(sys.argv[2]) <= 90:
         main(int(sys.argv[1]), float(sys.argv[2]), float(sys.argv[3]))
     else:
         print("Usage: main.py <Number of points (ℕ)> <Theta (degrees, 0.0-90.0)> <Mew (scalar, 0.0-1.0)>")

@@ -81,9 +81,9 @@ class Triangle:
 
     def calc_scale(self, point: Point, top: bool) -> float:
         if top:
-            return (point.y() - self.center.y()) / Triangle.base_height
+            return (point.y - self.center.y) / Triangle.base_height
         dist = self.center.euclidean_distance(point)
-        alpha = degrees(atan(abs(point.y() - self.center.y()) / abs(point.x() - self.center.x())))
+        alpha = degrees(atan(abs(point.y - self.center.y) / abs(point.x - self.center.x)))
         return dist * sin(radians(180 - alpha - Triangle.DELTA)) / sin(radians(Triangle.DELTA))
 
     def store_top_collision(self):
