@@ -1,22 +1,23 @@
-import numpy as np
+from typing import final
 
+import numpy as np
+import glm
 
 class Point:
-    def __init__(self, x: float, y: float, z: float, id_number: int = None):
-        self.id_number = id_number
-        self.coords = np.array([x, y, z])
+    x: float
+    y: float
+    z: float
+    id: int
 
-    def x(self) -> float:
-        return self.coords[0]
-
-    def y(self) -> float:
-        return self.coords[1]
-
-    def z(self) -> float:
-        return self.coords[2]
-
-    def id(self) -> int:
-        return self.id_number
+    def __init__(self, coords: glm.vec3, id_number: int = None):
+        self.id: final = id_number
+        self.coords: final = coords
+        self.x: final = coords.x
+        self.y: final = coords.y
+        self.z: final = coords.z
 
     def euclidean_distance(self, other_point: 'Point') -> float:
-        return np.linalg.norm(self.coords - other_point.coords)
+        return glm.distance(self.coords, other_point.coords)
+
+    def vectorBetween(self, other_point: 'Point') -> glm.vec3:
+        return glm.vec3(other_point.x - self.x, other_point.y - self.y, other_point.z - self.z)
