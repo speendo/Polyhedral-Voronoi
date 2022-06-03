@@ -21,7 +21,6 @@ def points_to_scatter(point_array, form_triangle: bool):
 
 
 def main(n, t, m):
-
     NO_POINTS: final = n
     THETA: final = t
     MEW: final = m
@@ -29,14 +28,14 @@ def main(n, t, m):
     MAX_Y: final = 50
     MAX_Z: final = 0
 
-
     points = [Point(glm.vec3(random.random() * MAX_X, random.random() * MAX_Y,
-                    random.random() * MAX_Z), i) for i in range(NO_POINTS)]
+                             random.random() * MAX_Z), i) for i in range(NO_POINTS)]
+
     cones = [Cone(point, THETA, MEW) for point in points]
 
     distances = []
     for i in range(NO_POINTS):
-        for j in range(i+1, NO_POINTS):
+        for j in range(i + 1, NO_POINTS):
             distances.append(Distance(cones[i], cones[j]))
 
     distances.sort(key=lambda d: d.scale)
@@ -46,6 +45,11 @@ def main(n, t, m):
         vector_between = distance.c1.CENTER.vectorBetween(distance.c2.CENTER)
         triangles.append(distance.c1.get_triangle_vertices(distance.scale, vector_between))
         triangles.append(distance.c2.get_triangle_vertices(distance.scale, vector_between))
+        # Add Collision Point
+        # Create Lines from Point
+        # Scale lines with scaling as well, figure out when 3 lines collide
+        # Remove all further collisions inside the area those 3 lines form
+        # (maybe research point inside non-convex hull polynomials)
         break
 
     scatter_points = points_to_scatter(points, False)
@@ -65,11 +69,16 @@ def main(n, t, m):
     fig = go.Figure(data=data)
     fig.update_layout(
         scene=dict(
-            xaxis=dict(tickmode="linear", range=[-30, MAX_X+30], linewidth=1),
-            yaxis=dict(tickmode="linear", range=[-30, MAX_Y+30], linewidth=1),
-            zaxis=dict(tickmode="linear", range=[-30, MAX_Z+30], linewidth=1),
+            xaxis=dict(tickmode="linear", range=[-30, MAX_X + 30], linewidth=1),
+            yaxis=dict(tickmode="linear", range=[-30, MAX_Y + 30], linewidth=1),
+            zaxis=dict(tickmode="linear", range=[-30, MAX_Z + 30], linewidth=1),
         ))
     fig.show()
+
+    print("points = [", end='')
+    for point in points:
+        print("Point(glm.vec3("+str(point.x)+", "+str(point.y)+", "+str(point.z)+")), ", end='')
+    print("]")
 
 
 if __name__ == '__main__':
@@ -77,4 +86,3 @@ if __name__ == '__main__':
         main(int(sys.argv[1]), float(sys.argv[2]), float(sys.argv[3]))
     else:
         print("Usage: main.py <Number of points (ℕ)> <Theta (degrees, 0.0-90.0)> <Mew (scalar, 0.0-1.0)>")
-

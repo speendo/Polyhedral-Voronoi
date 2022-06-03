@@ -60,4 +60,3 @@ class Distance:
         angle = degrees(atan(xzdiff/ydiff))
 
         self.scale: final = c1.calc_scale(c2.CENTER, c1.THETA/2 > angle)
-
