@@ -1,15 +1,12 @@
 import sys
-from math import sin, tan, atan, radians, degrees
-from typing import final
 import random
+from typing import final
 
-import plotly.graph_objects as go
-import numpy as np
 import glm  # install PyGLM
+import plotly.graph_objects as go
 
-from Point import Point
 from Cone import Cone, Distance
-from Triangle import Triangles
+from Point import Point
 
 
 def points_to_scatter(point_array, form_triangle: bool):

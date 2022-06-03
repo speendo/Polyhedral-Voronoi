@@ -1,7 +1,6 @@
 from math import tan, radians, degrees, atan, sin
 from typing import final
 
-import numpy as np
 import glm
 
 from Point import Point
@@ -60,9 +59,5 @@ class Distance:
         xzdiff = glm.length(glm.vec2(topcone.CENTER.x - bottomcone.CENTER.x, topcone.CENTER.z - bottomcone.CENTER.z))
         angle = degrees(atan(xzdiff/ydiff))
 
-        scale = c1.calc_scale(c2.CENTER, c1.THETA/2 > angle)
-
         self.scale: final = c1.calc_scale(c2.CENTER, c1.THETA/2 > angle)
-
-        print(c1.THETA / 2 > angle)
 
