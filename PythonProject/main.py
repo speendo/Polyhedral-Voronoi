@@ -19,6 +19,12 @@ def points_to_scatter(point_array, form_triangle: bool):
         z_array.append(point_array[0].z)
     return [x_array, y_array, z_array]
 
+def print_points(points):
+    print("Want to recreate the same inputs? Copy line below:")
+    print("points = [", end='')
+    for point in points:
+        print("Point(glm.vec3(" + str(point.x) + ", " + str(point.y) + ", " + str(point.z) + ")), ", end='')
+    print("]")
 
 def main(n, t, m):
     NO_POINTS: final = n
@@ -30,6 +36,7 @@ def main(n, t, m):
 
     points = [Point(glm.vec3(random.random() * MAX_X, random.random() * MAX_Y,
                              random.random() * MAX_Z), i) for i in range(NO_POINTS)]
+    print_points(points)
 
     cones = [Cone(point, THETA, MEW) for point in points]
 
@@ -47,6 +54,8 @@ def main(n, t, m):
         triangles.append(collision.c2.get_triangle_vertices(collision.scale, collision.vector_between))
         col_points.append(collision.collision_point)
         # Create Lines from Point
+        # Check each colission, if already inside triangle (or inside n cone triangles)
+        #   If so ignore
         # Scale lines with scaling as well, figure out when 3 lines collide
         # Remove all further collisions inside the area those 3 lines form
         # (maybe research point inside non-convex hull polynomials)
@@ -73,11 +82,6 @@ def main(n, t, m):
             zaxis=dict(tickmode="linear", range=[-30, MAX_Z + 30], linewidth=1),
         ))
     fig.show()
-
-    print("points = [", end='')
-    for point in points:
-        print("Point(glm.vec3("+str(point.x)+", "+str(point.y)+", "+str(point.z)+")), ", end='')
-    print("]")
 
 
 if __name__ == '__main__':
