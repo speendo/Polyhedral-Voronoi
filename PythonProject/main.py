@@ -2,10 +2,10 @@ import sys
 import random
 from typing import final
 
-import glm  # install PyGLM
+import glm  # pip install PyGLM
 import plotly.graph_objects as go
 
-from Cone import Cone, Distance
+from Cone import Cone, Collision
 from Point import Point
 
 
@@ -33,38 +33,37 @@ def main(n, t, m):
 
     cones = [Cone(point, THETA, MEW) for point in points]
 
-    distances = []
+    possible_collisions = []
     for i in range(NO_POINTS):
         for j in range(i + 1, NO_POINTS):
-            distances.append(Distance(cones[i], cones[j]))
+            possible_collisions.append(Collision(cones[i], cones[j]))
 
-    distances.sort(key=lambda d: d.scale)
+    possible_collisions.sort(key=lambda d: d.scale)
 
     triangles = []
-    for distance in distances:
-        vector_between = distance.c1.CENTER.vectorBetween(distance.c2.CENTER)
-        triangles.append(distance.c1.get_triangle_vertices(distance.scale, vector_between))
-        triangles.append(distance.c2.get_triangle_vertices(distance.scale, vector_between))
-        # Add Collision Point
+    col_points = []
+    for collision in possible_collisions:
+        triangles.append(collision.c1.get_triangle_vertices(collision.scale, collision.vector_between))
+        triangles.append(collision.c2.get_triangle_vertices(collision.scale, collision.vector_between))
+        col_points.append(collision.collision_point)
         # Create Lines from Point
         # Scale lines with scaling as well, figure out when 3 lines collide
         # Remove all further collisions inside the area those 3 lines form
         # (maybe research point inside non-convex hull polynomials)
-        break
 
     scatter_points = points_to_scatter(points, False)
     scatter_triangles = []
     for triangle in triangles:
         scatter_triangles.append(points_to_scatter(triangle, True))
+    scatter_collisions = points_to_scatter(col_points, False)
 
     colors = ["#%06x" % random.randint(0, 0xFFFFFF) for _ in range(NO_POINTS)]
     data = [go.Scatter3d(x=scatter_triangles[i][0], y=scatter_triangles[i][1], z=scatter_triangles[i][2],
                          mode='lines', line={'color': colors[i % NO_POINTS]}) for i in range(len(scatter_triangles))]
     data.append(go.Scatter3d(x=scatter_points[0], y=scatter_points[1], z=scatter_points[2],
                              mode='markers', marker={'color': 'blue'}))
-
-    # data.append(go.Scatter3d(x=scatter_collisions[0], y=scatter_collisions[1], z=scatter_collisions[2],
-    #                         mode='markers', marker={'color': 'red'}))
+    data.append(go.Scatter3d(x=scatter_collisions[0], y=scatter_collisions[1], z=scatter_collisions[2],
+                             mode='markers', marker={'color': 'red'}))
 
     fig = go.Figure(data=data)
     fig.update_layout(

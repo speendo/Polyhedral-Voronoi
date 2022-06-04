@@ -43,20 +43,37 @@ class Cone:
         return dist * sin(radians(180 - alpha - self.DELTA)) / sin(radians(self.DELTA))
 
 
-class Distance:
+class Collision:
 
     scale: float
     c1: Cone
     c2: Cone
+    vector_between: glm.vec3
+    collision_point: Point
 
     def __init__(self, c1: Cone, c2: Cone):
         self.c1: final = c1
         self.c2: final = c2
 
-        topcone = max(c1, c2, key=lambda c: c.CENTER.y)
-        bottomcone = min(c1, c2, key=lambda c: c.CENTER.y)
-        ydiff = topcone.CENTER.y - bottomcone.CENTER.y
-        xzdiff = glm.length(glm.vec2(topcone.CENTER.x - bottomcone.CENTER.x, topcone.CENTER.z - bottomcone.CENTER.z))
-        angle = degrees(atan(xzdiff/ydiff))
+        topCone = max(c1, c2, key=lambda c: c.CENTER.y)
+        bottomCone = min(c1, c2, key=lambda c: c.CENTER.y)
+        yDiff = topCone.CENTER.y - bottomCone.CENTER.y
+        xzDiff = glm.length(glm.vec2(topCone.CENTER.x - bottomCone.CENTER.x, topCone.CENTER.z - bottomCone.CENTER.z))
+        if yDiff != 0:
+            angle = degrees(atan(xzDiff/yDiff))
+        else:  # This shouldn't happen
+            angle = 90
+        topCollision = c1.THETA/2 > angle
 
-        self.scale: final = c1.calc_scale(c2.CENTER, c1.THETA/2 > angle)
+        self.scale: final = c1.calc_scale(c2.CENTER, topCollision)
+        self.vector_between = c1.CENTER.vectorBetween(c2.CENTER)
+
+        if topCollision:
+            self.collision_point = bottomCone.get_triangle_vertices(self.scale, self.vector_between)[0]
+        else:  # TODO: idk if this works in 3D
+            if topCone.CENTER.x > bottomCone.CENTER.x:
+                self.collision_point = topCone.get_triangle_vertices(self.scale, self.vector_between)[1]
+            else:
+                self.collision_point = topCone.get_triangle_vertices(self.scale, self.vector_between)[2]
+
+
