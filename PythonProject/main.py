@@ -1,6 +1,5 @@
 import sys
 import random
-from typing import final
 
 import glm  # pip install PyGLM
 import plotly.graph_objects as go
@@ -29,22 +28,15 @@ def print_points(points):
 
 
 def main(n, t, m):
-    NO_POINTS: final = n
-    THETA: final = t
-    MEW: final = m
-    MAX_X: final = 50
-    MAX_Y: final = 50
-    MAX_Z: final = 0
+    NO_POINTS = n
+    THETA = t
+    MEW = m
+    MAX_X = 50
+    MAX_Y = 50
+    MAX_Z = 0
 
     points = [Point(glm.vec3(random.random() * MAX_X, random.random() * MAX_Y,
                              random.random() * MAX_Z), i) for i in range(NO_POINTS)]
-    """
-    points = [Point(glm.vec3(3.461472749710083, 13.487765312194824, 0.0)),
-              Point(glm.vec3(17.08485221862793, 25.510251998901367, 0.0)),
-              Point(glm.vec3(16.543638229370117, 21.938753128051758, 0.0)),
-              Point(glm.vec3(13.615790367126465, 37.151859283447266, 0.0)),
-              Point(glm.vec3(17.879125595092773, 45.27642822265625, 0.0)), ]
-    """
 
     print_points(points)
 
@@ -59,6 +51,7 @@ def main(n, t, m):
 
     triangles = []
     col_points = []
+    lines = []
     for collision in possible_collisions:
         ignore = False
         for cone in cones:
@@ -70,24 +63,37 @@ def main(n, t, m):
             triangles.append(collision.c1.get_triangle_vertices(collision.scale, collision.vector_between))
             triangles.append(collision.c2.get_triangle_vertices(collision.scale, collision.vector_between))
             col_points.append(collision.collision_point)
+            collision.calculate_directions()
+            lines.append([collision.collision_point.coords,
+                          collision.collision_point.coords + collision.collision_direction_1 * 100])
+            lines.append([collision.collision_point.coords,
+                          collision.collision_point.coords + collision.collision_direction_2 * 100])
         # Create Lines from Point
         # Scale lines with scaling as well, figure out when 3 lines collide
         # Remove all further collisions inside the area those 3 lines form
         # (maybe research point inside non-convex hull polynomials)
 
+
+
+
     scatter_points = points_to_scatter(points, False)
     scatter_triangles = []
     for triangle in triangles:
         scatter_triangles.append(points_to_scatter(triangle, True))
+    scatter_lines = []
+    for line in lines:
+        scatter_lines.append(points_to_scatter(line, False))
     scatter_collisions = points_to_scatter(col_points, False)
 
-    colors = ["#%06x" % random.randint(0, 0xFFFFFF) for _ in range(NO_POINTS)]
     data = [go.Scatter3d(x=scatter_triangles[i][0], y=scatter_triangles[i][1], z=scatter_triangles[i][2],
-                         mode='lines', line={'color': colors[i % NO_POINTS]}) for i in range(len(scatter_triangles))]
+                         mode='lines', line={'color': "#%06x" % random.randint(0, 0xFFFFFF)}) for i in range(len(scatter_triangles))]
     data.append(go.Scatter3d(x=scatter_points[0], y=scatter_points[1], z=scatter_points[2],
                              mode='markers', marker={'color': 'blue'}))
     data.append(go.Scatter3d(x=scatter_collisions[0], y=scatter_collisions[1], z=scatter_collisions[2],
                              mode='markers', marker={'color': 'red'}))
+    for scatter_line in scatter_lines:
+        data.append(go.Scatter3d(x=scatter_line[0], y=scatter_line[1], z=scatter_line[2],
+                                 mode='lines', line={'color': 'black'}))
 
     fig = go.Figure(data=data)
     fig.update_layout(
