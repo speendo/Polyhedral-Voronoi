@@ -25,7 +25,7 @@ class Cone:
         if bottom_vector.x < 0:
             bottom_vector *= -1
 
-        # TODO: create from circumcenter?, mew 0.5 = eqidistant to corners
+        # TODO: create from circumcenter?, mew 0.5 = eqidistant to corners; right now for 30° mew = 0.536
         opposite = scale / 2
         height = opposite / tan(radians(self.theta / 2))
         bottom_center = glm.vec3(self.center.x, self.center.y - height + self.mew * height, self.center.z)
@@ -98,22 +98,22 @@ class Collision:
 
     def calculate_directions(self):
 
-        anglebetween = (90 - self.c1.theta / 2) / 2
+        anglebetween = (90 - self.c1.theta / 2)
         if self.topCollision:  # In 3D an expanding cone from collision in direction (0, -1, 0)
-            self.collision_direction_1 = glm.vec3(glm.cos(radians(270 - anglebetween - self.c1.theta/2)),
-                                                  glm.sin(radians(270 - anglebetween - self.c1.theta/2)), 0)
-            self.collision_direction_2 = glm.vec3(glm.cos(radians(270 + anglebetween + self.c1.theta/2)),
-                                                  glm.sin(radians(270 + anglebetween + self.c1.theta/2)), 0)
+            self.collision_direction_1 = glm.vec3(glm.cos(radians(270 - self.c1.theta)),
+                                                  glm.sin(radians(270 - self.c1.theta)), 0)
+            self.collision_direction_2 = glm.vec3(glm.cos(radians(270 + self.c1.theta)),
+                                                  glm.sin(radians(270 + self.c1.theta)), 0)
         else:  # In 3D an elliptical-sphere like surface, maybe a sideways cone
             topCone = max(self.c1, self.c2, key=lambda c: c.center.y)
             bottomCone = min(self.c1, self.c2, key=lambda c: c.center.y)
             if topCone.center.x > bottomCone.center.x:
                 self.collision_direction_1 = glm.vec3(0,1,0)
-                self.collision_direction_2 = glm.vec3(glm.cos(radians(270 + anglebetween + self.c1.theta / 2)),
-                                                      glm.sin(radians(270 + anglebetween + self.c1.theta / 2)), 0)
+                self.collision_direction_2 = glm.vec3(glm.cos(radians(270 + self.c1.theta)),
+                                                      glm.sin(radians(270 + self.c1.theta)), 0)
             else:
                 self.collision_direction_1 = glm.vec3(0, 1, 0)
-                self.collision_direction_2 = glm.vec3(glm.cos(radians(270 - anglebetween - self.c1.theta / 2)),
-                                                      glm.sin(radians(270 - anglebetween - self.c1.theta / 2)), 0)
+                self.collision_direction_2 = glm.vec3(glm.cos(radians(270 - self.c1.theta)),
+                                                      glm.sin(radians(270 - self.c1.theta)), 0)
 
 
