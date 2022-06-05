@@ -1,3 +1,4 @@
+import math
 from math import tan, radians, degrees, atan, sin
 from typing import final
 
@@ -43,6 +44,18 @@ class Cone:
         alpha = degrees(atan(abs((point.y - self.center.y) / (point.x - self.center.x))))
         return dist * sin(radians(180 - alpha - self.delta)) / sin(radians(self.delta))
 
+    def point_inside_cone(self, point: Point, scale: float) -> bool:
+        # https://math.stackexchange.com/a/1915286/1049475
+        # This needs to be expanded if we ever have cones with axis different to (0,1,0)
+        cone_triangle = self.get_triangle_vertices(scale, glm.vec3(1, 0, 0))
+        cone_tip = cone_triangle[0]
+        cone_base = glm.vec3(cone_tip.x, cone_triangle[1].y, cone_tip.z)
+        if not cone_base.y < point.y < cone_tip.y:
+            return False
+        h = cone_tip.y - cone_triangle[1].y
+        r = cone_tip.x - cone_triangle[1].x
+        point_distance = (point.x - cone_base.x) ** 2 + (point.z - cone_base.z) ** 2
+        return point_distance <= ((point.y - cone_base.y - h) ** 2) * (r**2/h**2)
 
 class Collision:
 

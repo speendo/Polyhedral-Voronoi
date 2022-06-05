@@ -19,12 +19,14 @@ def points_to_scatter(point_array, form_triangle: bool):
         z_array.append(point_array[0].z)
     return [x_array, y_array, z_array]
 
+
 def print_points(points):
     print("Want to recreate the same inputs? Copy line below:")
     print("points = [", end='')
     for point in points:
         print("Point(glm.vec3(" + str(point.x) + ", " + str(point.y) + ", " + str(point.z) + ")), ", end='')
     print("]")
+
 
 def main(n, t, m):
     NO_POINTS: final = n
@@ -36,6 +38,14 @@ def main(n, t, m):
 
     points = [Point(glm.vec3(random.random() * MAX_X, random.random() * MAX_Y,
                              random.random() * MAX_Z), i) for i in range(NO_POINTS)]
+    """
+    points = [Point(glm.vec3(3.461472749710083, 13.487765312194824, 0.0)),
+              Point(glm.vec3(17.08485221862793, 25.510251998901367, 0.0)),
+              Point(glm.vec3(16.543638229370117, 21.938753128051758, 0.0)),
+              Point(glm.vec3(13.615790367126465, 37.151859283447266, 0.0)),
+              Point(glm.vec3(17.879125595092773, 45.27642822265625, 0.0)), ]
+    """
+
     print_points(points)
 
     cones = [Cone(point, THETA, MEW) for point in points]
@@ -50,12 +60,17 @@ def main(n, t, m):
     triangles = []
     col_points = []
     for collision in possible_collisions:
-        triangles.append(collision.c1.get_triangle_vertices(collision.scale, collision.vector_between))
-        triangles.append(collision.c2.get_triangle_vertices(collision.scale, collision.vector_between))
-        col_points.append(collision.collision_point)
+        ignore = False
+        for cone in cones:
+            if cone.center != collision.c1.center and cone.center != collision.c2.center \
+                    and cone.point_inside_cone(collision.collision_point, collision.scale):
+                ignore = True
+                break
+        if not ignore:
+            triangles.append(collision.c1.get_triangle_vertices(collision.scale, collision.vector_between))
+            triangles.append(collision.c2.get_triangle_vertices(collision.scale, collision.vector_between))
+            col_points.append(collision.collision_point)
         # Create Lines from Point
-        # Check each colission, if already inside triangle (or inside n cone triangles)
-        #   If so ignore
         # Scale lines with scaling as well, figure out when 3 lines collide
         # Remove all further collisions inside the area those 3 lines form
         # (maybe research point inside non-convex hull polynomials)
