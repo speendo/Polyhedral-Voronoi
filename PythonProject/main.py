@@ -55,13 +55,13 @@ def main(n, t, m):
     for collision in possible_collisions:
         ignore = False
         for cone in cones:
-            if cone.center != collision.c1.center and cone.center != collision.c2.center \
+            if cone.center != collision.topCone.center and cone.center != collision.bottomCone.center \
                     and cone.point_inside_cone(collision.collision_point, collision.scale):
                 ignore = True
                 break
         if not ignore:
-            triangles.append(collision.c1.get_triangle_vertices(collision.scale, collision.vector_between))
-            triangles.append(collision.c2.get_triangle_vertices(collision.scale, collision.vector_between))
+            triangles.append(collision.topCone.get_triangle_vertices(collision.scale, collision.vector_between))
+            triangles.append(collision.bottomCone.get_triangle_vertices(collision.scale, collision.vector_between))
             col_points.append(collision.collision_point)
             collision.calculate_directions()
             lines.append([collision.collision_point.coords,

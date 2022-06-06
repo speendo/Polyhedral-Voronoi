@@ -2,7 +2,7 @@ from math import sin, cos, tan, radians, degrees, atan
 import glm
 
 from Point import Point
-
+from Line import Line
 
 class Cone:
 
@@ -10,7 +10,7 @@ class Cone:
     theta: float
     mew: float
     delta: float
-    circumcenterHeightRelation: float
+    # circumcenterHeightRelation: float
 
     def __init__(self, center: Point, theta: float, mew: float):
         self.center = center
@@ -19,8 +19,8 @@ class Cone:
         self.delta = (180 - theta) / 2
 
         # calculate circumcenterHeight
-        heightToCircumcenter = cos(radians(self.theta))  # for AO = BO = CO = 1
-        self.circumcenterHeightRelation = heightToCircumcenter / (heightToCircumcenter + 1)
+        # heightToCircumcenter = cos(radians(self.theta))  # for AO = BO = CO = 1
+        # self.circumcenterHeightRelation = heightToCircumcenter / (heightToCircumcenter + 1)
 
     def get_triangle_vertices(self, scale: float, base_vector: glm.vec3) -> list[Point]:
         bottom_vector = glm.vec3(base_vector)  # Apparently needed for PyGLM/Python in general
@@ -32,9 +32,9 @@ class Cone:
         # TODO: find relation for mew to circumcenter/center of expansion, right now fixed circumcenter
         opposite = scale / 2
         height = opposite / tan(radians(self.theta / 2))
-        circumcenter = bottom_vector*scale/2  # y missing
         bottom_center = glm.vec3(self.center.x,
-                                 self.center.y - self.circumcenterHeightRelation * height,
+                                 self.center.y - height + self.mew * height,
+                                 #self.center.y - self.circumcenterHeightRelation * height,
                                  self.center.z)
 
         # Points are returned (Top Point, Left Point, Right Point) of triangle
@@ -67,8 +67,8 @@ class Cone:
 class Collision:
 
     scale: float
-    c1: Cone
-    c2: Cone
+    topCone: Cone
+    bottomCone: Cone
     collision_point: Point
     vector_between: glm.vec3
     topCollision: bool
@@ -79,13 +79,11 @@ class Collision:
 
     def __init__(self, c1: Cone, c2: Cone):
 
-        self.c1 = c1
-        self.c2 = c2
-
-        topCone = max(c1, c2, key=lambda c: c.center.y)
-        bottomCone = min(c1, c2, key=lambda c: c.center.y)
-        yDiff = topCone.center.y - bottomCone.center.y
-        xzDiff = glm.length(glm.vec2(topCone.center.x - bottomCone.center.x, topCone.center.z - bottomCone.center.z))
+        self.topCone = max(c1, c2, key=lambda c: c.center.y)
+        self.bottomCone = min(c1, c2, key=lambda c: c.center.y)
+        yDiff = self.topCone.center.y - self.bottomCone.center.y
+        xzDiff = glm.length(glm.vec2(self.topCone.center.x - self.bottomCone.center.x,
+                                     self.topCone.center.z - self.bottomCone.center.z))
         if yDiff != 0:
             angle = degrees(atan(xzDiff/yDiff))
         else:  # This shouldn't happen
@@ -93,34 +91,53 @@ class Collision:
         self.topCollision = c1.theta / 2 > angle
 
         self.scale = c1.calc_scale(c2.center, self.topCollision)
-        self.vector_between = c1.center.vectorBetween(c2.center)
+        self.vector_between = c1.center.vectorFromTo(c2.center)
 
         if self.topCollision:
-            self.collision_point = bottomCone.get_triangle_vertices(self.scale, self.vector_between)[0]
+            self.collision_point = self.bottomCone.get_triangle_vertices(self.scale, self.vector_between)[0]
         else:  # TODO: idk if this works in 3D
-            if topCone.center.x > bottomCone.center.x:
-                self.collision_point = topCone.get_triangle_vertices(self.scale, self.vector_between)[1]
+            if self.topCone.center.x > self.bottomCone.center.x:
+                self.collision_point = self.topCone.get_triangle_vertices(self.scale, self.vector_between)[1]
             else:
-                self.collision_point = topCone.get_triangle_vertices(self.scale, self.vector_between)[2]
+                self.collision_point = self.topCone.get_triangle_vertices(self.scale, self.vector_between)[2]
 
     def calculate_directions(self):
+        """
+        anglebetween = (90 - self.topCone.theta / 2)
+        print(anglebetween)
 
-        anglebetween = (90 - self.c1.theta / 2)
+        vec_left = glm.vec3(cos(radians(270 - self.c1.theta)),
+                            sin(radians(270 - self.c1.theta)), 0)
+        vec_right = glm.vec3(cos(radians(270 + self.c1.theta)),
+                             sin(radians(270 + self.c1.theta)), 0)
+        vec_left = glm.vec3(cos(radians(180 + ((self.c1.theta+90) * (1 - self.c1.mew) - self.c1.theta/2))),
+                            sin(radians(180 + ((self.c1.theta+90) * (1 - self.c1.mew) - self.c1.theta/2))), 0)
+        vec_right = glm.vec3(cos(radians(-((self.c1.theta+90) * (1 - self.c1.mew) - self.c1.theta/2))),
+                             sin(radians(-((self.c1.theta+90) * (1 - self.c1.mew) - self.c1.theta/2))), 0)
+        vec_up = glm.vec3(0,1,0)"""
+        topConeTriangle = self.topCone.get_triangle_vertices(self.scale + 1, self.vector_between)
+        bottomConeTriangle = self.bottomCone.get_triangle_vertices(self.scale + 1, self.vector_between)
+
+        topConeBase = Line(topConeTriangle[1], end=topConeTriangle[2])
+
         if self.topCollision:  # In 3D an expanding cone from collision in direction (0, -1, 0)
-            self.collision_direction_1 = glm.vec3(glm.cos(radians(270 - self.c1.theta)),
-                                                  glm.sin(radians(270 - self.c1.theta)), 0)
-            self.collision_direction_2 = glm.vec3(glm.cos(radians(270 + self.c1.theta)),
-                                                  glm.sin(radians(270 + self.c1.theta)), 0)
-        else:  # In 3D an elliptical-sphere like surface, maybe a sideways cone
-            topCone = max(self.c1, self.c2, key=lambda c: c.center.y)
-            bottomCone = min(self.c1, self.c2, key=lambda c: c.center.y)
-            if topCone.center.x > bottomCone.center.x:
-                self.collision_direction_1 = glm.vec3(0,1,0)
-                self.collision_direction_2 = glm.vec3(glm.cos(radians(270 + self.c1.theta)),
-                                                      glm.sin(radians(270 + self.c1.theta)), 0)
-            else:
-                self.collision_direction_1 = glm.vec3(0, 1, 0)
-                self.collision_direction_2 = glm.vec3(glm.cos(radians(270 - self.c1.theta)),
-                                                      glm.sin(radians(270 - self.c1.theta)), 0)
+            bottomConeLeft = Line(bottomConeTriangle[0], end=bottomConeTriangle[1])
+            bottomConeRight = Line(bottomConeTriangle[0], end=bottomConeTriangle[2])
+            intersection_1 = topConeBase.findIntersection2D(bottomConeLeft)
+            intersection_2 = topConeBase.findIntersection2D(bottomConeRight)
 
+        else:  # In 3D an elliptical-sphere like surface, maybe a sideways cone
+            if self.topCone.center.x > self.bottomCone.center.x:
+                bottomConeRight = Line(bottomConeTriangle[0], end=bottomConeTriangle[2])
+                topConeLeft = Line(topConeTriangle[0], end=topConeTriangle[1])
+                intersection_1 = bottomConeRight.findIntersection2D(topConeLeft)
+                intersection_2 = bottomConeRight.findIntersection2D(topConeBase)
+            else:
+                bottomConeLeft = Line(bottomConeTriangle[0], end=bottomConeTriangle[1])
+                topConeRight = Line(topConeTriangle[0], end=topConeTriangle[2])
+                intersection_1 = bottomConeLeft.findIntersection2D(topConeRight)
+                intersection_2 = bottomConeLeft.findIntersection2D(topConeBase)
+
+        self.collision_direction_1 = glm.normalize(self.collision_point.vectorFromTo(intersection_1))
+        self.collision_direction_2 = glm.normalize(self.collision_point.vectorFromTo(intersection_2))
 
