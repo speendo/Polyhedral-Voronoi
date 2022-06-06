@@ -1,4 +1,4 @@
-from math import tan, radians, degrees, atan, sin
+from math import sin, cos, tan, radians, degrees, atan
 import glm
 
 from Point import Point
@@ -6,17 +6,21 @@ from Point import Point
 
 class Cone:
 
-    # All are final/const
     center: Point
     theta: float
     mew: float
     delta: float
+    circumcenterHeightRelation: float
 
     def __init__(self, center: Point, theta: float, mew: float):
         self.center = center
         self.theta = theta
         self.mew = mew
         self.delta = (180 - theta) / 2
+
+        # calculate circumcenterHeight
+        heightToCircumcenter = cos(radians(self.theta))  # for AO = BO = CO = 1
+        self.circumcenterHeightRelation = heightToCircumcenter / (heightToCircumcenter + 1)
 
     def get_triangle_vertices(self, scale: float, base_vector: glm.vec3) -> list[Point]:
         bottom_vector = glm.vec3(base_vector)  # Apparently needed for PyGLM/Python in general
@@ -25,10 +29,13 @@ class Cone:
         if bottom_vector.x < 0:
             bottom_vector *= -1
 
-        # TODO: create from circumcenter?, mew 0.5 = eqidistant to corners; right now for 30° mew = 0.536
+        # TODO: find relation for mew to circumcenter/center of expansion, right now fixed circumcenter
         opposite = scale / 2
         height = opposite / tan(radians(self.theta / 2))
-        bottom_center = glm.vec3(self.center.x, self.center.y - height + self.mew * height, self.center.z)
+        circumcenter = bottom_vector*scale/2  # y missing
+        bottom_center = glm.vec3(self.center.x,
+                                 self.center.y - self.circumcenterHeightRelation * height,
+                                 self.center.z)
 
         # Points are returned (Top Point, Left Point, Right Point) of triangle
         return [Point(glm.vec3(self.center.x, bottom_center.y + height, self.center.z)),
@@ -56,9 +63,9 @@ class Cone:
         point_distance = (point.x - cone_base.x) ** 2 + (point.z - cone_base.z) ** 2
         return point_distance <= ((point.y - cone_base.y - h) ** 2) * (r**2/h**2)
 
+
 class Collision:
 
-    # final/const
     scale: float
     c1: Cone
     c2: Cone

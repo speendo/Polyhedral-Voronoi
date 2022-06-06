@@ -89,8 +89,10 @@ def main(n, t, m):
                          mode='lines', line={'color': "#%06x" % random.randint(0, 0xFFFFFF)}) for i in range(len(scatter_triangles))]
     data.append(go.Scatter3d(x=scatter_points[0], y=scatter_points[1], z=scatter_points[2],
                              mode='markers', marker={'color': 'blue'}))
+    """
     data.append(go.Scatter3d(x=scatter_collisions[0], y=scatter_collisions[1], z=scatter_collisions[2],
                              mode='markers', marker={'color': 'red'}))
+    """
     for scatter_line in scatter_lines:
         data.append(go.Scatter3d(x=scatter_line[0], y=scatter_line[1], z=scatter_line[2],
                                  mode='lines', line={'color': 'black'}))
