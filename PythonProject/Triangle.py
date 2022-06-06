@@ -1,11 +1,81 @@
 from math import tan, radians, degrees, atan, sin
 from typing import final
+import glm
 
 import numpy as np
 
-from Line2D import Line2D
 from Point import Point
-from Collision import Collision, TopCollision, LeftCollision, RightCollision
+from Line2D import Line2D
+
+
+class Collision:
+    def __init__(self, point: Point, scale: float, triangle: 'Triangle', has_happened: bool = False):
+        self.point = point
+        self.scale = scale
+        self.triangle = triangle
+        self.has_happened = has_happened
+        self.line1 = None
+        self.line2 = None
+
+    def collide(self):
+        self.has_happened = True
+
+    def get_scale(self) -> float:
+        if self.has_happened:
+            return float('inf')
+        else:
+            return self.scale
+
+
+class TopCollision(Collision):
+    def __init__(self, point: Point, scale: float, triangle: 'Triangle', max_x: float = 50, min_x: float = 0,
+                 min_y: float = 0, has_happened: bool = False):
+        super().__init__(point, scale, triangle, has_happened)
+        self.line1 = self.generate_line("left", min_x, min_y, max_x)
+        self.line2 = self.generate_line("right", min_x, min_y, max_x)
+
+    def generate_line(self, side: str, min_x: float, min_y: float, max_x: float):
+        if side == "left":
+            line = Line2D(point=self.point, slope=self.triangle.left_line.slope / 2)
+            line.end_point = max([line.point_at_x(min_y), line.point_at_y(min_x)], key=lambda p: p.y())
+            return line
+        elif side == "right":
+            line = Line2D(point=self.point, slope=self.triangle.right_line.slope / 2)
+            line.end_point = max([line.point_at_x(min_y), line.point_at_y(max_x)], key=lambda p: p.y())
+            return line
+
+
+class LeftCollision(Collision):
+    def __init__(self, point: Point, scale: float, triangle: 'Triangle', max_y: float = 50, min_x: float = 0,
+                 min_y: float = 0, has_happened: bool = False):
+        super().__init__(point, scale, triangle, has_happened)
+        self.line1 = self.generate_vertical_line(max_y)
+        self.line2 = self.generate_left_line(min_x, min_y)
+
+    def generate_vertical_line(self, max_y):
+        return Line2D(point=self.point, end_point=Point(self.point.x, max_y, 0))
+
+    def generate_left_line(self, min_x, min_y):
+        line = Line2D(point=self.point, slope=self.triangle.left_line.slope / 2)
+        line.end_point = max([line.point_at_x(min_y), line.point_at_y(min_x)], key=lambda p: p.y())
+        return line
+
+
+class RightCollision(Collision):
+    def __init__(self, point: Point, scale: float, triangle: 'Triangle', max_x: float = 50, max_y: float = 50, min_y: float = 0,
+                 has_happened: bool = False):
+        super().__init__(point, scale, triangle, has_happened)
+        self.line1 = self.generate_vertical_line(max_y)
+        self.line2 = self.generate_right_line(max_x, min_y)
+
+    def generate_vertical_line(self, max_y):
+        return Line2D(point=self.point, end_point=Point(glm.vec3(self.point.x, max_y, 0)))
+
+    def generate_right_line(self, max_x, min_y):
+        line = Line2D(point=self.point, slope=self.triangle.right_line.slope / 2)
+        line.end_point = max([line.point_at_x(min_y), line.point_at_y(max_x)], key=lambda p: p.y())
+        return line
+
 
 
 class Triangle:
@@ -40,28 +110,28 @@ class Triangle:
         height = opposite / tan(radians(self.THETA / 2))
 
         # Points are returned (Top Point, Left Point, Right Point) of triangle
-        return [Point(self.center.x(), self.center.y() + self.MEW * height, self.center.z()),
-                Point(self.center.x() - opposite, self.center.y() - height + self.MEW * height, self.center.z()),
-                Point(self.center.x() + opposite, self.center.y() - height + self.MEW * height, self.center.z())]
+        return [Point(glm.vec3(self.center.x, self.center.y + self.MEW * height, self.center.z)),
+                Point(glm.vec3(self.center.x - opposite, self.center.y - height + self.MEW * height, self.center.z)),
+                Point(glm.vec3(self.center.x + opposite, self.center.y - height + self.MEW * height, self.center.z))]
 
 
     def get_scaled_top_point(self, scale: float) -> Point:
         opposite = scale / 2
         height = opposite / tan(radians(self.THETA / 2))
 
-        return Point(self.center.x(), self.center.y() + self.MEW * height, self.center.z())
+        return Point(glm.vec3(self.center.x, self.center.y + self.MEW * height, self.center.z))
 
     def get_scaled_left_point(self, scale: float) -> Point:
         opposite = scale / 2
         height = opposite / tan(radians(self.THETA / 2))
 
-        return Point(self.center.x() - opposite, self.center.y() - height + self.MEW * height, self.center.z())
+        return Point(glm.vec3(self.center.x - opposite, self.center.y - height + self.MEW * height, self.center.z))
 
     def get_scaled_right_point(self, scale: float) -> Point:
         opposite = scale / 2
         height = opposite / tan(radians(self.THETA / 2))
 
-        return Point(self.center.x() + opposite, self.center.y() - height + self.MEW * height, self.center.z())
+        return Point(glm.vec3(self.center.x + opposite, self.center.y - height + self.MEW * height, self.center.z))
 
     def categorize_points(self, points):
         self.top_points = []
@@ -69,8 +139,8 @@ class Triangle:
         self.right_points = []
 
         for p in points:
-            if p.id() is not self.center.id():
-                if p.y() > self.center.y():
+            if p.id() is not self.center.id:
+                if p.y() > self.center.y:
                     if self.left_line.point_position(p) >= 0 and self.right_line.point_position(p) >= 0:
                         self.top_points.append(p)
                 else:

@@ -1,70 +1,78 @@
+from math import degrees, atan
+import glm
+
 from Point import Point
-from Line2D import Line2D
+from Line import Line
+from Cone import Cone
 
 class Collision:
-    def __init__(self, point: Point, scale: float, triangle: 'Triangle', has_happened: bool = False):
-        self.point = point
-        self.scale = scale
-        self.triangle = triangle
-        self.has_happened = has_happened
-        self.line1 = None
-        self.line2 = None
 
-    def collide(self):
-        self.has_happened = True
+    scale: float
+    topCone: Cone
+    bottomCone: Cone
+    collision_point: Point
+    vector_between: glm.vec3
+    topCollision: bool
 
-    def get_scale(self) -> float:
-        if self.has_happened:
-            return float('inf')
-        else:
-            return self.scale
+    # Those need to be a complex curve in 3D, possible evaluated only at a "marching step"
+    collision_direction_1: glm.vec3 = glm.vec3(0,0,0)
+    collision_direction_2: glm.vec3 = glm.vec3(0,0,0)
+
+    def __init__(self, c1: Cone, c2: Cone):
+
+        self.topCone = max(c1, c2, key=lambda c: c.center.y)
+        self.bottomCone = min(c1, c2, key=lambda c: c.center.y)
+        yDiff = self.topCone.center.y - self.bottomCone.center.y
+        xzDiff = glm.length(glm.vec2(self.topCone.center.x - self.bottomCone.center.x,
+                                     self.topCone.center.z - self.bottomCone.center.z))
+        if yDiff != 0:
+            angle = degrees(atan(xzDiff/yDiff))
+        else:  # This shouldn't happen
+            angle = 90
+        self.topCollision = c1.theta / 2 > angle
+
+        self.scale = c1.calc_scale(c2.center, self.topCollision)
+        self.vector_between = c1.center.vectorFromTo(c2.center)
+
+        if self.topCollision:
+            self.collision_point = self.bottomCone.get_triangle_vertices(self.scale, self.vector_between)[0]
+        else:  # TODO: idk if this works in 3D
+            if self.topCone.center.x > self.bottomCone.center.x:
+                self.collision_point = self.topCone.get_triangle_vertices(self.scale, self.vector_between)[1]
+            else:
+                self.collision_point = self.topCone.get_triangle_vertices(self.scale, self.vector_between)[2]
+
+    def calculate_directions(self):
+        topConeTriangle = self.topCone.get_triangle_vertices(self.scale + 1, self.vector_between)
+        bottomConeTriangle = self.bottomCone.get_triangle_vertices(self.scale + 1, self.vector_between)
+
+        topConeBase = Line(topConeTriangle[1], end=topConeTriangle[2])
+
+        if self.topCollision:  # In 3D an expanding cone from collision in direction (0, -1, 0)
+            bottomConeLeft = Line(bottomConeTriangle[0], end=bottomConeTriangle[1])
+            bottomConeRight = Line(bottomConeTriangle[0], end=bottomConeTriangle[2])
+            intersection_1 = topConeBase.findIntersection2D(bottomConeLeft)
+            intersection_2 = topConeBase.findIntersection2D(bottomConeRight)
+
+        else:  # In 3D an elliptical-sphere like surface, maybe a sideways cone
+            if self.topCone.center.x > self.bottomCone.center.x:
+                bottomConeRight = Line(bottomConeTriangle[0], end=bottomConeTriangle[2])
+                topConeLeft = Line(topConeTriangle[0], end=topConeTriangle[1])
+                intersection_1 = bottomConeRight.findIntersection2D(topConeLeft)
+                intersection_2 = bottomConeRight.findIntersection2D(topConeBase)
+            else:
+                bottomConeLeft = Line(bottomConeTriangle[0], end=bottomConeTriangle[1])
+                topConeRight = Line(topConeTriangle[0], end=topConeTriangle[2])
+                intersection_1 = bottomConeLeft.findIntersection2D(topConeRight)
+                intersection_2 = bottomConeLeft.findIntersection2D(topConeBase)
+
+        self.collision_direction_1 = glm.normalize(self.collision_point.vectorFromTo(intersection_1))
+        self.collision_direction_2 = glm.normalize(self.collision_point.vectorFromTo(intersection_2))
 
 
-class TopCollision(Collision):
-    def __init__(self, point: Point, scale: float, triangle: 'Triangle', max_x: float = 50, min_x: float = 0,
-                 min_y: float = 0, has_happened: bool = False):
-        super().__init__(point, scale, triangle, has_happened)
-        self.line1 = self.generate_line("left", min_x, min_y, max_x)
-        self.line2 = self.generate_line("right", min_x, min_y, max_x)
+class CollisionLine:
+    foundEnd: bool = False
+    line: Line
 
-    def generate_line(self, side: str, min_x: float, min_y: float, max_x: float):
-        if side == "left":
-            line = Line2D(point=self.point, slope=self.triangle.left_line.slope / 2)
-            line.end_point = max([line.point_at_x(min_y), line.point_at_y(min_x)], key=lambda p: p.y())
-            return line
-        elif side == "right":
-            line = Line2D(point=self.point, slope=self.triangle.right_line.slope / 2)
-            line.end_point = max([line.point_at_x(min_y), line.point_at_y(max_x)], key=lambda p: p.y())
-            return line
-
-
-class LeftCollision(Collision):
-    def __init__(self, point: Point, scale: float, triangle: 'Triangle', max_y: float = 50, min_x: float = 0,
-                 min_y: float = 0, has_happened: bool = False):
-        super().__init__(point, scale, triangle, has_happened)
-        self.line1 = self.generate_vertical_line(max_y)
-        self.line2 = self.generate_left_line(min_x, min_y)
-
-    def generate_vertical_line(self, max_y):
-        return Line2D(point=self.point, end_point=Point(self.point.x(), max_y, 0))
-
-    def generate_left_line(self, min_x, min_y):
-        line = Line2D(point=self.point, slope=self.triangle.left_line.slope / 2)
-        line.end_point = max([line.point_at_x(min_y), line.point_at_y(min_x)], key=lambda p: p.y())
-        return line
-
-
-class RightCollision(Collision):
-    def __init__(self, point: Point, scale: float, triangle: 'Triangle', max_x: float = 50, max_y: float = 50, min_y: float = 0,
-                 has_happened: bool = False):
-        super().__init__(point, scale, triangle, has_happened)
-        self.line1 = self.generate_vertical_line(max_y)
-        self.line2 = self.generate_right_line(max_x, min_y)
-
-    def generate_vertical_line(self, max_y):
-        return Line2D(point=self.point, end_point=Point(self.point.x(), max_y, 0))
-
-    def generate_right_line(self, max_x, min_y):
-        line = Line2D(point=self.point, slope=self.triangle.right_line.slope / 2)
-        line.end_point = max([line.point_at_x(min_y), line.point_at_y(max_x)], key=lambda p: p.y())
-        return line
+    def __init__(self, line: Line):
+        self.line = line

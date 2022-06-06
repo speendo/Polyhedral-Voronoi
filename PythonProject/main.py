@@ -4,8 +4,10 @@ import random
 import glm  # pip install PyGLM
 import plotly.graph_objects as go
 
-from Cone import Cone, Collision
 from Point import Point
+from Line import Line
+from Cone import Cone
+from Collision import Collision, CollisionLine
 
 
 def points_to_scatter(point_array, form_triangle: bool):
@@ -52,6 +54,7 @@ def main(n, t, m):
     triangles = []
     col_points = []
     lines = []
+    col_lines = []
     for collision in possible_collisions:
         ignore = False
         for cone in cones:
@@ -62,19 +65,25 @@ def main(n, t, m):
         if not ignore:
             triangles.append(collision.topCone.get_triangle_vertices(collision.scale, collision.vector_between))
             triangles.append(collision.bottomCone.get_triangle_vertices(collision.scale, collision.vector_between))
+
             col_points.append(collision.collision_point)
+
             collision.calculate_directions()
-            lines.append([collision.collision_point.coords,
-                          collision.collision_point.coords + collision.collision_direction_1 * 100])
-            lines.append([collision.collision_point.coords,
-                          collision.collision_point.coords + collision.collision_direction_2 * 100])
-        # Create Lines from Point
-        # Scale lines with scaling as well, figure out when 3 lines collide
+            col_lines.append(CollisionLine(Line(collision.collision_point, collision.collision_direction_1)))
+            col_lines.append(CollisionLine(Line(collision.collision_point, collision.collision_direction_2)))
+
+    for line in col_lines:
+        print()
+        # Find first Hit of Line
+        # Try hitted line for an earlier hit (repeat)
+        # If it is first, two lines should be equidistant, create collision_line_collision
+
+        # Ideas for Cone:
         # Remove all further collisions inside the area those 3 lines form
         # (maybe research point inside non-convex hull polynomials)
 
-
-
+    for line in col_lines:
+        lines.append([line.line.p.coords, line.line.p.coords + line.line.norm_dir * 100])
 
     scatter_points = points_to_scatter(points, False)
     scatter_triangles = []
@@ -100,9 +109,9 @@ def main(n, t, m):
     fig = go.Figure(data=data)
     fig.update_layout(
         scene=dict(
-            xaxis=dict(tickmode="linear", range=[-30, MAX_X + 30], linewidth=1),
-            yaxis=dict(tickmode="linear", range=[-30, MAX_Y + 30], linewidth=1),
-            zaxis=dict(tickmode="linear", range=[-30, MAX_Z + 30], linewidth=1),
+            xaxis=dict(tickmode="linear", range=[0, MAX_X], linewidth=1),
+            yaxis=dict(tickmode="linear", range=[0, MAX_Y], linewidth=1),
+            zaxis=dict(tickmode="linear", range=[0, MAX_Z], linewidth=1),
         ))
     fig.show()
 
