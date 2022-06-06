@@ -10,17 +10,12 @@ class Cone:
     theta: float
     mew: float
     delta: float
-    # circumcenterHeightRelation: float
 
     def __init__(self, center: Point, theta: float, mew: float):
         self.center = center
         self.theta = theta
         self.mew = mew
         self.delta = (180 - theta) / 2
-
-        # calculate circumcenterHeight
-        # heightToCircumcenter = cos(radians(self.theta))  # for AO = BO = CO = 1
-        # self.circumcenterHeightRelation = heightToCircumcenter / (heightToCircumcenter + 1)
 
     def get_triangle_vertices(self, scale: float, base_vector: glm.vec3) -> list[Point]:
         bottom_vector = glm.vec3(base_vector)  # Apparently needed for PyGLM/Python in general
@@ -29,12 +24,10 @@ class Cone:
         if bottom_vector.x < 0:
             bottom_vector *= -1
 
-        # TODO: find relation for mew to circumcenter/center of expansion, right now fixed circumcenter
         opposite = scale / 2
         height = opposite / tan(radians(self.theta / 2))
         bottom_center = glm.vec3(self.center.x,
                                  self.center.y - height + self.mew * height,
-                                 #self.center.y - self.circumcenterHeightRelation * height,
                                  self.center.z)
 
         # Points are returned (Top Point, Left Point, Right Point) of triangle
@@ -102,19 +95,6 @@ class Collision:
                 self.collision_point = self.topCone.get_triangle_vertices(self.scale, self.vector_between)[2]
 
     def calculate_directions(self):
-        """
-        anglebetween = (90 - self.topCone.theta / 2)
-        print(anglebetween)
-
-        vec_left = glm.vec3(cos(radians(270 - self.c1.theta)),
-                            sin(radians(270 - self.c1.theta)), 0)
-        vec_right = glm.vec3(cos(radians(270 + self.c1.theta)),
-                             sin(radians(270 + self.c1.theta)), 0)
-        vec_left = glm.vec3(cos(radians(180 + ((self.c1.theta+90) * (1 - self.c1.mew) - self.c1.theta/2))),
-                            sin(radians(180 + ((self.c1.theta+90) * (1 - self.c1.mew) - self.c1.theta/2))), 0)
-        vec_right = glm.vec3(cos(radians(-((self.c1.theta+90) * (1 - self.c1.mew) - self.c1.theta/2))),
-                             sin(radians(-((self.c1.theta+90) * (1 - self.c1.mew) - self.c1.theta/2))), 0)
-        vec_up = glm.vec3(0,1,0)"""
         topConeTriangle = self.topCone.get_triangle_vertices(self.scale + 1, self.vector_between)
         bottomConeTriangle = self.bottomCone.get_triangle_vertices(self.scale + 1, self.vector_between)
 
