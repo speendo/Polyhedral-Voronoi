@@ -76,3 +76,12 @@ class CollisionLine:
 
     def __init__(self, line: Line):
         self.line = line
+
+    def findClosestIntersections(self, lines):
+        # check if line in array is same line
+        self.line = self.line
+        return False
+
+    def setEnd(self, p: Point):
+        self.line.end = p
+        self.foundEnd = True
