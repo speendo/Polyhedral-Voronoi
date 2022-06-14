@@ -9,6 +9,8 @@ from Line import Line
 from Cone import Cone
 from Collision import Collision, CollisionLine
 
+sys.setrecursionlimit(10000)
+
 
 def points_to_scatter(point_array, form_triangle: bool):
     x_array = [point.x for point in point_array]
@@ -42,6 +44,14 @@ def main(n, t, m):
 
     points = [Point(glm.vec3(random.random() * MAX_X, random.random() * MAX_Y,
                              random.random() * MAX_Z), i) for i in range(NO_POINTS)]
+    """
+    points = [Point(glm.vec3(29.676204681396484, 13.8629150390625, 0.0)),
+              Point(glm.vec3(45.12320327758789, 1.3517680168151855, 0.0)),
+              Point(glm.vec3(2.581514596939087, 32.25883102416992, 0.0)), ]
+    points = [Point(glm.vec3(7.380792617797852, 37.025917053222656, 0.0)),
+              Point(glm.vec3(31.771631240844727, 42.43708038330078, 0.0)),
+              Point(glm.vec3(39.584495544433594, 8.807494163513184, 0.0)), ]
+    """
 
     print_points(points)
 
@@ -57,6 +67,7 @@ def main(n, t, m):
     triangles = []
     col_points = []
     col_lines = []
+    col_line_id = 1
     for collision in all_collisions:
         ignore = False
         for cone in cones:
@@ -68,8 +79,10 @@ def main(n, t, m):
         if not ignore:
             col_points.append(collision.collision_point)
             collision.calculate_directions()
-            col_lines.append(CollisionLine(Line(collision.collision_point, collision.collision_direction_1)))
-            col_lines.append(CollisionLine(Line(collision.collision_point, collision.collision_direction_2)))
+            col_lines.append(CollisionLine(Line(collision.collision_point, collision.collision_direction_1), col_line_id))
+            col_line_id+=1
+            col_lines.append(CollisionLine(Line(collision.collision_point, collision.collision_direction_2), col_line_id))
+            col_line_id+=1
 
             # Create triangles for debugging
             triangles.append(collision.topCone.get_triangle_vertices(collision.scale, collision.vector_between))
@@ -77,12 +90,24 @@ def main(n, t, m):
 
     final_lines = []
     quadBoundaryLines = [
-        CollisionLine(Line(Point(glm.vec3(MIN_X, MIN_Y, MIN_Z)), glm.vec3(1, 0, 0))),
-        CollisionLine(Line(Point(glm.vec3(MIN_X, MIN_Y, MIN_Z)), glm.vec3(0, 1, 0))),
-        CollisionLine(Line(Point(glm.vec3(MAX_X, MIN_Y, MIN_Z)), glm.vec3(0, 1, 0))),
-        CollisionLine(Line(Point(glm.vec3(MIN_X, MAX_Y, MIN_Z)), glm.vec3(1, 1, 0))),
+        CollisionLine(Line(Point(glm.vec3(MIN_X, MIN_Y, MIN_Z)), glm.vec3(1, 0, 0)), col_line_id),
+        CollisionLine(Line(Point(glm.vec3(MIN_X, MIN_Y, MIN_Z)), glm.vec3(0, 1, 0)), col_line_id+1),
+        CollisionLine(Line(Point(glm.vec3(MAX_X, MIN_Y, MIN_Z)), glm.vec3(0, 1, 0)), col_line_id+2),
+        CollisionLine(Line(Point(glm.vec3(MIN_X, MAX_Y, MIN_Z)), glm.vec3(1, 0, 0)), col_line_id+3),
+
+        CollisionLine(Line(Point(glm.vec3(MAX_X, MIN_Y, MIN_Z)), glm.vec3(-1, 0, 0)), col_line_id+4),
+        CollisionLine(Line(Point(glm.vec3(MIN_X, MAX_Y, MIN_Z)), glm.vec3(0, -1, 0)), col_line_id + 5),
+        CollisionLine(Line(Point(glm.vec3(MAX_X, MAX_Y, MIN_Z)), glm.vec3(0, -1, 0)), col_line_id + 6),
+        CollisionLine(Line(Point(glm.vec3(MAX_X, MAX_Y, MIN_Z)), glm.vec3(-1, 0, 0)), col_line_id + 7),
+
     ]
 
+    def setCollisionLineEnd(id: int, intersectionPoint: Point):
+        for col_linee in col_lines:
+            if col_linee.id == id:
+                col_linee.setEnd(intersectionPoint)
+                final_lines.append(col_linee)
+                return
 
     def findNextIntersection(inputLine, closestLine=None) -> bool:
         if closestLine is None:
@@ -90,22 +115,20 @@ def main(n, t, m):
 
         if not closestLine:
             # Inputline has no hit lines, i.e. it goes out of bounds
-            wallHit = inputLine.findClosestIntersection(quadBoundaryLines)
+            wallHit = inputLine.findClosestIntersections(quadBoundaryLines)
             intersectionPoint = inputLine.line.findIntersection2D(wallHit[0].line)
-            inputLine.setEnd(intersectionPoint)
-            final_lines.append(inputLine)
+            setCollisionLineEnd(inputLine.id, intersectionPoint)
             return True
 
         # We need to find out if the input line is also closest from the hit line's origin
-        closestLineClosestLines = closestLine.findClosestIntersection(col_lines)
+        closestLineClosestLines = closestLine.findClosestIntersections(col_lines)
 
-        if closestLineClosestLines[0] == inputLine or closestLineClosestLines[1] == inputLine:
+        if closestLineClosestLines[0].id == inputLine.id or closestLineClosestLines[1].id == inputLine.id:
             # We found 3 lines that form an intersection in the diagram
-            intersectionPoint = inputLine.line.findIntersection2D(closestLine)
-            closestLine.setEnd(intersectionPoint)
-            closestLineClosestLines[0].setEnd(intersectionPoint)
-            closestLineClosestLines[1].setEnd(intersectionPoint)
-            final_lines.append([closestLine, closestLineClosestLines[0], closestLineClosestLines[1]])
+            intersectionPoint = inputLine.line.findIntersection2D(closestLine.line)
+            setCollisionLineEnd(closestLine.id, intersectionPoint)
+            setCollisionLineEnd(closestLineClosestLines[0].id, intersectionPoint)
+            setCollisionLineEnd(closestLineClosestLines[1].id, intersectionPoint)
             return True
 
         else:
@@ -114,24 +137,26 @@ def main(n, t, m):
             return False
 
 
-    for line in col_lines:
+    for i in range(len(col_lines)):
+        line = col_lines[i]
         if not line.foundEnd:
             # We want to run this, adding intersection points and setting lines to have "found End"
             # every time, until we find the nearest intersection for each line in the diagram
-            while not findNextIntersection(line):
-                pass
+            if not findNextIntersection(line):
+                i -= 1
+
+    #findNextIntersection(col_lines[0])
 
         # Ideas for Cone:
         # Remove all further collisions inside the area those 3 lines form
         # (maybe research point inside non-convex hull polynomials)
 
 
-
     """Render Stuff"""
 
     lines = []
 
-    for col_line in col_lines:
+    for col_line in final_lines:
         line = col_line.line
         if line.end is not None:
             lines.append([line.p.coords, line.end.coords])

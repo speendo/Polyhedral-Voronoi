@@ -70,17 +70,45 @@ class Collision:
         self.collision_direction_2 = glm.normalize(self.collision_point.vectorFromTo(intersection_2))
 
 
+
 class CollisionLine:
     foundEnd: bool = False
     line: Line
+    id: int
 
-    def __init__(self, line: Line):
+    def __init__(self, line: Line, id: int):
         self.line = line
+        self.id = id
 
-    def findClosestIntersections(self, lines):
-        # check if line in array is same line
-        self.line = self.line
-        return False
+    def findClosestIntersections(self, col_lines):
+        # return closest 2 intersections
+        from Line import Line
+        closestLine1 = CollisionLine(Line(Point(glm.vec3(0,0,0)), glm.vec3(0,0,1)), 0)
+        closestLine2 = CollisionLine(Line(Point(glm.vec3(0,0,0)), glm.vec3(0,0,1)), 0)
+        closestDistance1 = float('inf')
+        closestDistance2 = float('inf')
+
+        for other_col_line in col_lines:
+            if not other_col_line.foundEnd:
+                if other_col_line.line.p.coords != self.line.p.coords:
+                    intersectionPoint = self.line.findIntersection2D(other_col_line.line)
+                    if intersectionPoint:
+                        # check if point actually on line direction and not behind
+                        if glm.dot(glm.normalize(self.line.p.vectorFromTo(intersectionPoint)), self.line.norm_dir) > 0:
+                            if glm.dot(glm.normalize(other_col_line.line.p.vectorFromTo(intersectionPoint)), other_col_line.line.norm_dir) > 0:
+                                intersectionDistance = self.line.p.euclidean_distance(intersectionPoint)
+                                if intersectionDistance < closestDistance1:
+                                    closestLine2 = CollisionLine(Line(closestLine1.line.p, closestLine1.line.norm_dir), closestLine1.id)
+                                    closestDistance2 = closestDistance1
+                                    closestLine1 = CollisionLine(Line(other_col_line.line.p, other_col_line.line.norm_dir), other_col_line.id)
+                                    closestDistance1 = intersectionDistance
+                                elif intersectionDistance < closestDistance2:
+                                    closestLine2 = CollisionLine(Line(other_col_line.line.p, other_col_line.line.norm_dir), other_col_line.id)
+                                    closestDistance2 = intersectionDistance
+
+        if closestDistance1 == float('inf'):
+            return [False, False]
+        return [closestLine1, closestLine2]
 
     def setEnd(self, p: Point):
         self.line.end = p
