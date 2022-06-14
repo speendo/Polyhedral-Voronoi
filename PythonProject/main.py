@@ -9,8 +9,6 @@ from Line import Line
 from Cone import Cone
 from Collision import Collision, CollisionLine
 
-sys.setrecursionlimit(10000)
-
 
 def points_to_scatter(point_array, form_triangle: bool):
     x_array = [point.x for point in point_array]
@@ -44,14 +42,16 @@ def main(n, t, m):
 
     points = [Point(glm.vec3(random.random() * MAX_X, random.random() * MAX_Y,
                              random.random() * MAX_Z), i) for i in range(NO_POINTS)]
-    """
-    points = [Point(glm.vec3(29.676204681396484, 13.8629150390625, 0.0)),
-              Point(glm.vec3(45.12320327758789, 1.3517680168151855, 0.0)),
-              Point(glm.vec3(2.581514596939087, 32.25883102416992, 0.0)), ]
-    points = [Point(glm.vec3(7.380792617797852, 37.025917053222656, 0.0)),
-              Point(glm.vec3(31.771631240844727, 42.43708038330078, 0.0)),
-              Point(glm.vec3(39.584495544433594, 8.807494163513184, 0.0)), ]
-    """
+    points = [Point(glm.vec3(13.62315845489502, 33.51239013671875, 0.0)),
+              Point(glm.vec3(29.77773094177246, 3.8591370582580566, 0.0)),
+              Point(glm.vec3(0.7624854445457458, 10.322636604309082, 0.0)),
+              Point(glm.vec3(40.18679428100586, 43.19552993774414, 0.0)), ]
+
+    #    Buggy inputs:
+    # points = [Point(glm.vec3(28.89190101623535, 41.676185607910156, 0.0)), Point(glm.vec3(46.438045501708984, 17.486921310424805, 0.0)), Point(glm.vec3(2.3031342029571533, 10.209383964538574, 0.0)), Point(glm.vec3(34.372528076171875, 22.53403663635254, 0.0)), ]
+
+    # points = [Point(glm.vec3(15.789161682128906, 42.6627082824707, 0.0)), Point(glm.vec3(19.750951766967773, 0.6110978126525879, 0.0)), Point(glm.vec3(45.5194091796875, 30.237092971801758, 0.0)), Point(glm.vec3(39.65787124633789, 15.787607192993164, 0.0)), Point(glm.vec3(26.34703826904297, 26.280113220214844, 0.0)), ]
+    # points = [Point(glm.vec3(32.58632278442383, 40.09115219116211, 0.0)), Point(glm.vec3(15.976365089416504, 8.040189743041992, 0.0)), Point(glm.vec3(45.87504196166992, 41.5893669128418, 0.0)), Point(glm.vec3(25.068574905395508, 17.420928955078125, 0.0)), Point(glm.vec3(38.39833068847656, 39.33024597167969, 0.0)), ]
 
     print_points(points)
 
@@ -109,7 +109,7 @@ def main(n, t, m):
                 final_lines.append(col_linee)
                 return
 
-    def findNextIntersection(inputLine, closestLine=None) -> bool:
+    def findNextIntersection(inputLine, closestLine=None):
         if closestLine is None:
             closestLine = inputLine.findClosestIntersections(col_lines)[0]
 
@@ -118,7 +118,7 @@ def main(n, t, m):
             wallHit = inputLine.findClosestIntersections(quadBoundaryLines)
             intersectionPoint = inputLine.line.findIntersection2D(wallHit[0].line)
             setCollisionLineEnd(inputLine.id, intersectionPoint)
-            return True
+            return False
 
         # We need to find out if the input line is also closest from the hit line's origin
         closestLineClosestLines = closestLine.findClosestIntersections(col_lines)
@@ -129,23 +129,23 @@ def main(n, t, m):
             setCollisionLineEnd(closestLine.id, intersectionPoint)
             setCollisionLineEnd(closestLineClosestLines[0].id, intersectionPoint)
             setCollisionLineEnd(closestLineClosestLines[1].id, intersectionPoint)
-            return True
+            return False
 
         else:
             # The hit line has a closer neighbor, we start the function again with those two lines as input
-            findNextIntersection(closestLine, closestLineClosestLines[0])
-            return False
+            return[closestLine, closestLineClosestLines[0]]
 
-
-    for i in range(len(col_lines)):
+    i = 0
+    while i < len(col_lines):
         line = col_lines[i]
         if not line.foundEnd:
-            # We want to run this, adding intersection points and setting lines to have "found End"
-            # every time, until we find the nearest intersection for each line in the diagram
-            if not findNextIntersection(line):
-                i -= 1
-
-    #findNextIntersection(col_lines[0])
+            newInputLines = findNextIntersection(line)
+            while newInputLines:
+                print(str(i) + "/" + str(len(col_lines)))
+                print(newInputLines[0], newInputLines[1])
+                newInputLines = findNextIntersection(newInputLines[0], newInputLines[1])
+        else:
+            i += 1
 
         # Ideas for Cone:
         # Remove all further collisions inside the area those 3 lines form
@@ -171,9 +171,9 @@ def main(n, t, m):
     for line in lines:
         scatter_lines.append(points_to_scatter(line, False))
     scatter_collisions = points_to_scatter(col_points, False)
-
+    data = []
     data = [go.Scatter3d(x=scatter_triangles[i][0], y=scatter_triangles[i][1], z=scatter_triangles[i][2], mode='lines',
-                         line={'color': "#%06x" % random.randint(0, 0xFFFFFF)}) for i in range(len(scatter_triangles))]
+                        line={'color': "lightblue"}) for i in range(len(scatter_triangles))]
     data.append(go.Scatter3d(x=scatter_points[0], y=scatter_points[1], z=scatter_points[2],
                              mode='markers', marker={'color': 'blue'}))
     for scatter_line in scatter_lines:
