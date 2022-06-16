@@ -108,6 +108,8 @@ class CollisionLine:
 
         if closestDistance1 == float('inf'):
             return [False, False]
+        if closestDistance2 == float('inf'):
+            return [closestLine1, False]
         return [closestLine1, closestLine2]
 
     def setEnd(self, p: Point):

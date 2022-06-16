@@ -42,17 +42,9 @@ def main(n, t, m):
 
     points = [Point(glm.vec3(random.random() * MAX_X, random.random() * MAX_Y,
                              random.random() * MAX_Z), i) for i in range(NO_POINTS)]
-    points = [Point(glm.vec3(13.62315845489502, 33.51239013671875, 0.0)),
-              Point(glm.vec3(29.77773094177246, 3.8591370582580566, 0.0)),
-              Point(glm.vec3(0.7624854445457458, 10.322636604309082, 0.0)),
-              Point(glm.vec3(40.18679428100586, 43.19552993774414, 0.0)), ]
 
-    #    Buggy inputs:
-    # points = [Point(glm.vec3(28.89190101623535, 41.676185607910156, 0.0)), Point(glm.vec3(46.438045501708984, 17.486921310424805, 0.0)), Point(glm.vec3(2.3031342029571533, 10.209383964538574, 0.0)), Point(glm.vec3(34.372528076171875, 22.53403663635254, 0.0)), ]
-
-    # points = [Point(glm.vec3(15.789161682128906, 42.6627082824707, 0.0)), Point(glm.vec3(19.750951766967773, 0.6110978126525879, 0.0)), Point(glm.vec3(45.5194091796875, 30.237092971801758, 0.0)), Point(glm.vec3(39.65787124633789, 15.787607192993164, 0.0)), Point(glm.vec3(26.34703826904297, 26.280113220214844, 0.0)), ]
-    # points = [Point(glm.vec3(32.58632278442383, 40.09115219116211, 0.0)), Point(glm.vec3(15.976365089416504, 8.040189743041992, 0.0)), Point(glm.vec3(45.87504196166992, 41.5893669128418, 0.0)), Point(glm.vec3(25.068574905395508, 17.420928955078125, 0.0)), Point(glm.vec3(38.39833068847656, 39.33024597167969, 0.0)), ]
-
+    #   Buggy inputs:
+    # (None)
     print_points(points)
 
     cones = [Cone(point, THETA, MEW) for point in points]
@@ -105,13 +97,17 @@ def main(n, t, m):
     def setCollisionLineEnd(id: int, intersectionPoint: Point):
         for col_linee in col_lines:
             if col_linee.id == id:
+                print("End of the line: "+str(id))
                 col_linee.setEnd(intersectionPoint)
                 final_lines.append(col_linee)
                 return
 
-    def findNextIntersection(inputLine, closestLine=None):
-        if closestLine is None:
-            closestLine = inputLine.findClosestIntersections(col_lines)[0]
+    def findNextIntersection(inputLine, closestLines=None):
+        if closestLines is None:
+            closestLines = inputLine.findClosestIntersections(col_lines)
+
+        closestLine = closestLines[0]
+        secondClosestLine = closestLines[1]
 
         if not closestLine:
             # Inputline has no hit lines, i.e. it goes out of bounds
@@ -120,29 +116,54 @@ def main(n, t, m):
             setCollisionLineEnd(inputLine.id, intersectionPoint)
             return False
 
+        if secondClosestLine:
+            intersectionPoint = inputLine.line.findIntersection2D(closestLine.line)
+            intersectionPoint2 = inputLine.line.findIntersection2D(secondClosestLine.line)
+            if intersectionPoint.euclidean_distance(intersectionPoint2) < 0.1:
+                # We found 3 lines that form an intersection in the diagram
+                setCollisionLineEnd(inputLine.id, intersectionPoint)
+                setCollisionLineEnd(closestLine.id, intersectionPoint)
+                setCollisionLineEnd(secondClosestLine.id, intersectionPoint)
+                return False
+
+        # The 3 lines do not form an intersectionPoint
         # We need to find out if the input line is also closest from the hit line's origin
         closestLineClosestLines = closestLine.findClosestIntersections(col_lines)
 
-        if closestLineClosestLines[0].id == inputLine.id or closestLineClosestLines[1].id == inputLine.id:
-            # We found 3 lines that form an intersection in the diagram
-            intersectionPoint = inputLine.line.findIntersection2D(closestLine.line)
+        if closestLineClosestLines[0].id == inputLine.id:
+            intersectionPoint = closestLineClosestLines[0].line.findIntersection2D(closestLine.line)
             setCollisionLineEnd(closestLine.id, intersectionPoint)
             setCollisionLineEnd(closestLineClosestLines[0].id, intersectionPoint)
+            if closestLineClosestLines[1]:
+                intersectionPoint2 = closestLineClosestLines[1].line.findIntersection2D(closestLine.line)
+                if intersectionPoint.euclidean_distance(intersectionPoint2) < 0.1:
+                    setCollisionLineEnd(closestLineClosestLines[1].id, intersectionPoint)
+            return False
+
+        elif closestLineClosestLines[1] and closestLineClosestLines[1].id == inputLine.id:
+            intersectionPoint = closestLineClosestLines[1].line.findIntersection2D(closestLine.line)
+            setCollisionLineEnd(closestLine.id, intersectionPoint)
             setCollisionLineEnd(closestLineClosestLines[1].id, intersectionPoint)
+            intersectionPoint2 = closestLineClosestLines[0].line.findIntersection2D(closestLine.line)
+            if intersectionPoint.euclidean_distance(intersectionPoint2) < 0.1:
+                setCollisionLineEnd(closestLineClosestLines[0].id, intersectionPoint)
             return False
 
         else:
             # The hit line has a closer neighbor, we start the function again with those two lines as input
-            return[closestLine, closestLineClosestLines[0]]
+            return[closestLine, closestLineClosestLines]
 
     i = 0
+    #i = len(col_lines)
+    #final_lines = col_lines
     while i < len(col_lines):
+        print(str(i) + "/" + str(len(col_lines)))
         line = col_lines[i]
         if not line.foundEnd:
             newInputLines = findNextIntersection(line)
             while newInputLines:
                 print(str(i) + "/" + str(len(col_lines)))
-                print(newInputLines[0], newInputLines[1])
+                print(newInputLines[0].id, newInputLines[1][0].id, newInputLines[1][1].id)
                 newInputLines = findNextIntersection(newInputLines[0], newInputLines[1])
         else:
             i += 1
@@ -171,13 +192,17 @@ def main(n, t, m):
     for line in lines:
         scatter_lines.append(points_to_scatter(line, False))
     scatter_collisions = points_to_scatter(col_points, False)
+
+
     data = []
-    data = [go.Scatter3d(x=scatter_triangles[i][0], y=scatter_triangles[i][1], z=scatter_triangles[i][2], mode='lines',
-                        line={'color': "lightblue"}) for i in range(len(scatter_triangles))]
     data.append(go.Scatter3d(x=scatter_points[0], y=scatter_points[1], z=scatter_points[2],
                              mode='markers', marker={'color': 'blue'}))
     for scatter_line in scatter_lines:
-        data.append(go.Scatter3d(x=scatter_line[0], y=scatter_line[1], z=scatter_line[2], mode='lines', line={'color': 'black'}))
+        data.append(go.Scatter3d(x=scatter_line[0], y=scatter_line[1], z=scatter_line[2], mode='lines',
+                                 line={'color': 'black'}))
+    for scatter_triangle in scatter_triangles:
+        data.append(go.Scatter3d(x=scatter_triangle[0], y=scatter_triangle[1], z=scatter_triangle[2], mode='lines',
+                                 line={'color': "lightblue"}))
     # Collisions: data.append(go.Scatter3d(x=scatter_collisions[0], y=scatter_collisions[1], z=scatter_collisions[2],
     #                                      mode='markers', marker={'color': 'red'}))
 

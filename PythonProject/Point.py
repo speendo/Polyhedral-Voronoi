@@ -17,5 +17,9 @@ class Point:
         return glm.distance(self.coords, other_point.coords)
 
     def vectorFromTo(self, other_point: 'Point') -> glm.vec3:
-        return glm.vec3(other_point.x - self.x, other_point.y - self.y, other_point.z - self.z)
+        return glm.vec3(
+            round(other_point.x - self.x, 2),
+            round(other_point.y - self.y, 2),
+            round(other_point.z - self.z, 2)
+        )
 

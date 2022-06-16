@@ -11,9 +11,8 @@ class Line:
     def __init__(self, point: Point, direction: glm.vec3 = None, end: Point = None):
         self.p = point
         if direction is None:
-            self.norm_dir = glm.normalize(end.vectorFromTo(point))
-        else:
-            self.norm_dir = glm.normalize(direction)
+            direction = end.vectorFromTo(point)
+        self.norm_dir = glm.normalize(direction)
 
     def findIntersection2D(self, otherLine: 'Line'):
 
