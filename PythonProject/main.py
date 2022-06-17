@@ -36,8 +36,8 @@ def main(n, t, m):
     MIN_X = 0
     MIN_Y = 0
     MIN_Z = 0
-    MAX_X = 50
-    MAX_Y = 50
+    MAX_X = 150
+    MAX_Y = 150
     MAX_Z = 0
 
     points = [Point(glm.vec3(random.random() * MAX_X, random.random() * MAX_Y,

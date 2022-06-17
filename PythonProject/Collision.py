@@ -43,8 +43,8 @@ class Collision:
                 self.collision_point = self.topCone.get_triangle_vertices(self.scale, self.vector_between)[2]
 
     def calculate_directions(self):
-        topConeTriangle = self.topCone.get_triangle_vertices(self.scale + 1, self.vector_between)
-        bottomConeTriangle = self.bottomCone.get_triangle_vertices(self.scale + 1, self.vector_between)
+        topConeTriangle = self.topCone.get_triangle_vertices(self.scale + 10, self.vector_between)
+        bottomConeTriangle = self.bottomCone.get_triangle_vertices(self.scale + 10, self.vector_between)
 
         topConeBase = Line(topConeTriangle[1], end=topConeTriangle[2])
 
