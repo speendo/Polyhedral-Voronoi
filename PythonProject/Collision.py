@@ -53,6 +53,8 @@ class Collision:
             bottomConeRight = Line(bottomConeTriangle[0], end=bottomConeTriangle[2])
             intersection_1 = topConeBase.findIntersection2D(bottomConeLeft)
             intersection_2 = topConeBase.findIntersection2D(bottomConeRight)
+            self.collision_direction_1 = glm.vec3(0.755929, -0.654654, 0)
+            self.collision_direction_2 = glm.vec3(-0.755929, -0.654654, 0)
 
         else:  # In 3D an elliptical-sphere like surface, maybe a sideways cone
             if self.topCone.center.x > self.bottomCone.center.x:
@@ -60,14 +62,20 @@ class Collision:
                 topConeLeft = Line(topConeTriangle[0], end=topConeTriangle[1])
                 intersection_1 = bottomConeRight.findIntersection2D(topConeLeft)
                 intersection_2 = bottomConeRight.findIntersection2D(topConeBase)
+                self.collision_direction_1 = glm.vec3(0,1,0)
+                self.collision_direction_2 = glm.vec3(0.755929, -0.654654, 0)
             else:
                 bottomConeLeft = Line(bottomConeTriangle[0], end=bottomConeTriangle[1])
                 topConeRight = Line(topConeTriangle[0], end=topConeTriangle[2])
                 intersection_1 = bottomConeLeft.findIntersection2D(topConeRight)
                 intersection_2 = bottomConeLeft.findIntersection2D(topConeBase)
+                self.collision_direction_1 = glm.vec3(-0.755929, -0.654654, 0)
+                self.collision_direction_2 = glm.vec3(0,1,0)
 
-        self.collision_direction_1 = glm.normalize(self.collision_point.vectorFromTo(intersection_1))
-        self.collision_direction_2 = glm.normalize(self.collision_point.vectorFromTo(intersection_2))
+        #self.collision_direction_1 = glm.normalize(self.collision_point.vectorFromTo(intersection_1))
+        #self.collision_direction_2 = glm.normalize(self.collision_point.vectorFromTo(intersection_2))
+        print(self.collision_direction_1)
+        print(self.collision_direction_2)
 
 
 

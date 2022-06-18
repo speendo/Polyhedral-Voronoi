@@ -18,8 +18,8 @@ class Point:
 
     def vectorFromTo(self, other_point: 'Point') -> glm.vec3:
         return glm.vec3(
-            round(other_point.x - self.x, 2),
-            round(other_point.y - self.y, 2),
-            round(other_point.z - self.z, 2)
+            other_point.x - self.x,
+            other_point.y - self.y,
+            other_point.z - self.z
         )
 
