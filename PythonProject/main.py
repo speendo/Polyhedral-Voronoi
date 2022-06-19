@@ -271,6 +271,7 @@ def main(n, t, m):
             zaxis=dict(tickmode="linear", range=[MIN_Z, MAX_Z], linewidth=1),
         ))
     fig.show()
+    print_points(points)
 
 
 if __name__ == '__main__':
