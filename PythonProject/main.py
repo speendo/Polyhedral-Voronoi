@@ -45,7 +45,8 @@ def main(n, t, m):
     points = [Point(glm.vec3(random.random() * MAX_X, random.random() * MAX_Y,
                              random.random() * MAX_Z), i) for i in range(NO_POINTS)]
     #   Buggy inputs:
-    # (None)
+    # points = [Point(glm.vec3(885.869140625, 538.2119140625, 0.0)), Point(glm.vec3(313.7813415527344, 756.8295288085938, 0.0)), Point(glm.vec3(924.343017578125, 636.501953125, 0.0)), Point(glm.vec3(400.0970153808594, 756.957763671875, 0.0)), Point(glm.vec3(65.90353393554688, 869.4907836914062, 0.0)), ]
+
     print_points(points)
 
     cones = [Cone(points[i], THETA, MEW, i) for i in range(len(points))]
@@ -53,6 +54,7 @@ def main(n, t, m):
     all_collisions = []
     for i in range(NO_POINTS):
         for j in range(i + 1, NO_POINTS):
+            print("Generating Collisions: " + str(i*NO_POINTS+j) + " of " + str(NO_POINTS*NO_POINTS))
             all_collisions.append(Collision(cones[i], cones[j]))
 
     all_collisions.sort(key=lambda d: d.scale)
@@ -64,15 +66,18 @@ def main(n, t, m):
     final_lines = []
 
     def setCollisionLineEnd(id: int, intersectionPoint: Point):
+        print("Connection Progress: "+str(len(final_lines))+" of ~"+str(n*6))
         for col_linee in col_lines:
             if col_linee.id == id:
-                print("End of the line: " + str(id))
                 col_linee.setEnd(intersectionPoint)
                 final_lines.append(col_linee)
                 return
 
 
+    count = 0
     for collision in all_collisions:
+        print("Checking Collisions: " + str(count) + " of " + str(len(all_collisions)))
+        count+=1
         ignore = False
         for cone in cones:
             # If the collision happens inside a cone, it won't be valid so we ignore it
@@ -95,39 +100,38 @@ def main(n, t, m):
             triangles.append(collision.topCone.get_triangle_vertices(collision.scale, collision.vector_between))
             triangles.append(collision.bottomCone.get_triangle_vertices(collision.scale, collision.vector_between))
 
-            # Check if any intersection is happening
-            for col_line in col_lines:
-                breakFlag = False
-                if not col_line.foundEnd:
-                    coneIDs = col_line.coneIDs
-                    for other_col_line in col_lines:
-                        # check if they're not from the same collision
-                        if not other_col_line.foundEnd:
-                            if other_col_line.id != col_line.id:
-                                # check if they share the first coneID
-                                otherConeIDs = other_col_line.coneIDs
-                                if coneIDs[0] == otherConeIDs[0]:
-                                    # we search for a third collision which has the missing 2 IDs
-                                    missingIDs = [coneIDs[1], otherConeIDs[1]]
-                                    missingIDs.sort()
-                                    for third_col_line in col_lines:
-                                        if not third_col_line.foundEnd:
-                                            if missingIDs == third_col_line.coneIDs:
-                                                # there are always 2 of those, so we need to check which intersects
-                                                intersections = col_line.findClosestIntersections([other_col_line, third_col_line])
-                                                if intersections[1]:
-                                                    # The three lines intersect (yay)
-                                                    intersectionPoint = col_line.line.findIntersection2D(other_col_line.line)
-                                                    # We found 3 lines that form an intersection in the diagram
-                                                    setCollisionLineEnd(col_line.id, intersectionPoint)
-                                                    setCollisionLineEnd(other_col_line.id, intersectionPoint)
-                                                    setCollisionLineEnd(third_col_line.id, intersectionPoint)
-                                                    breakFlag = True
-                                                    break
-                                    if breakFlag:
-                                        break
-
-
+    # Connect the collision lines, depending on their cones
+    for col_line in col_lines:
+        breakFlag = False
+        if not col_line.foundEnd:
+            coneIDs = col_line.coneIDs
+            for other_col_line in col_lines:
+                # check if they're not from the same collision
+                if not other_col_line.foundEnd:
+                    if other_col_line.id != col_line.id:
+                        # check if they share the first coneID
+                        otherConeIDs = other_col_line.coneIDs
+                        if coneIDs[0] == otherConeIDs[0]:
+                            # we search for a third collision which has the missing 2 IDs
+                            missingIDs = [coneIDs[1], otherConeIDs[1]]
+                            missingIDs.sort()
+                            for third_col_line in col_lines:
+                                if not third_col_line.foundEnd:
+                                    if missingIDs == third_col_line.coneIDs:
+                                        # there are always 2 of those, so we need to check which intersects
+                                        intersections = col_line.findClosestIntersections(
+                                            [other_col_line, third_col_line])
+                                        if intersections[1]:
+                                            # The three lines intersect (yay)
+                                            intersectionPoint = col_line.line.findIntersection2D(other_col_line.line)
+                                            # We found 3 lines that form an intersection in the diagram
+                                            setCollisionLineEnd(col_line.id, intersectionPoint)
+                                            setCollisionLineEnd(other_col_line.id, intersectionPoint)
+                                            setCollisionLineEnd(third_col_line.id, intersectionPoint)
+                                            breakFlag = True
+                                            break
+                            if breakFlag:
+                                break
 
     quadBoundaryLines = [
         CollisionLine(Line(Point(glm.vec3(MIN_X, MIN_Y, MIN_Z)), glm.vec3(1, 0, 0)), [0,0], col_line_id),
@@ -142,7 +146,8 @@ def main(n, t, m):
 
     ]
 
-    # Handle all collisions with 1 other point or wall
+    # Handle all collisions with wall
+    # TODO: Avoid the wrong lines by crossing them with final lines?
     for col_line in col_lines:
         if not col_line.foundEnd:
             wallHit = col_line.findClosestIntersections(quadBoundaryLines)
@@ -224,7 +229,7 @@ def main(n, t, m):
     """
 
     """Render Stuff"""
-
+    print("Preparing Render...")
     lines = []
 
     for col_line in final_lines:
@@ -246,17 +251,16 @@ def main(n, t, m):
 
     data = []
     data.append(go.Scatter3d(x=scatter_points[0], y=scatter_points[1], z=scatter_points[2],
-                             mode='markers', marker={'color': 'blue'}))
+                             mode='markers', marker={'color': 'blue', 'size': 5}))
     for scatter_line in scatter_lines:
         data.append(go.Scatter3d(x=scatter_line[0], y=scatter_line[1], z=scatter_line[2], mode='lines',
                                  line={'color': 'black'}))
-    """
+
     for scatter_triangle in scatter_triangles:
         data.append(go.Scatter3d(x=scatter_triangle[0], y=scatter_triangle[1], z=scatter_triangle[2], mode='lines',
                                  line={'color': "lightblue"}))
-    """
-    # data.append(go.Scatter3d(x=scatter_collisions[0], y=scatter_collisions[1], z=scatter_collisions[2],
-    #                                     mode='markers', marker={'color': 'red'}))
+    data.append(go.Scatter3d(x=scatter_collisions[0], y=scatter_collisions[1], z=scatter_collisions[2],
+                                         mode='markers', marker={'color': 'red', 'size': 5}))
 
 
     fig = go.Figure(data=data)
