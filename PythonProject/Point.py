@@ -21,5 +21,5 @@ class Point:
             round(other_point.x - self.x, 2),
             round(other_point.y - self.y, 2),
             round(other_point.z - self.z, 2)
-        )  # Maybe Round?
+        )
 
