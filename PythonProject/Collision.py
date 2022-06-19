@@ -10,6 +10,7 @@ class Collision:
     scale: float
     topCone: Cone
     bottomCone: Cone
+    coneIDs: list[int]
     collision_point: Point
     vector_between: glm.vec3
     topCollision: bool
@@ -18,10 +19,14 @@ class Collision:
     collision_direction_1: glm.vec3 = glm.vec3(0,0,0)
     collision_direction_2: glm.vec3 = glm.vec3(0,0,0)
 
+
     def __init__(self, c1: Cone, c2: Cone):
 
+        self.coneIDs = [c1.id, c2.id]
+        self.coneIDs.sort()
         self.topCone = max(c1, c2, key=lambda c: c.center.y)
         self.bottomCone = min(c1, c2, key=lambda c: c.center.y)
+
         yDiff = self.topCone.center.y - self.bottomCone.center.y
         xzDiff = glm.length(glm.vec2(self.topCone.center.x - self.bottomCone.center.x,
                                      self.topCone.center.z - self.bottomCone.center.z))
@@ -42,6 +47,7 @@ class Collision:
             else:
                 self.collision_point = self.topCone.get_triangle_vertices(self.scale, self.vector_between)[2]
 
+
     def calculate_directions(self):
         topConeTriangle = self.topCone.get_triangle_vertices(self.scale + 10, self.vector_between)
         bottomConeTriangle = self.bottomCone.get_triangle_vertices(self.scale + 10, self.vector_between)
@@ -53,8 +59,6 @@ class Collision:
             bottomConeRight = Line(bottomConeTriangle[0], end=bottomConeTriangle[2])
             intersection_1 = topConeBase.findIntersection2D(bottomConeLeft)
             intersection_2 = topConeBase.findIntersection2D(bottomConeRight)
-            self.collision_direction_1 = glm.vec3(0.755929, -0.654654, 0)
-            self.collision_direction_2 = glm.vec3(-0.755929, -0.654654, 0)
 
         else:  # In 3D an elliptical-sphere like surface, maybe a sideways cone
             if self.topCone.center.x > self.bottomCone.center.x:
@@ -62,20 +66,14 @@ class Collision:
                 topConeLeft = Line(topConeTriangle[0], end=topConeTriangle[1])
                 intersection_1 = bottomConeRight.findIntersection2D(topConeLeft)
                 intersection_2 = bottomConeRight.findIntersection2D(topConeBase)
-                self.collision_direction_1 = glm.vec3(0,1,0)
-                self.collision_direction_2 = glm.vec3(0.755929, -0.654654, 0)
             else:
                 bottomConeLeft = Line(bottomConeTriangle[0], end=bottomConeTriangle[1])
                 topConeRight = Line(topConeTriangle[0], end=topConeTriangle[2])
                 intersection_1 = bottomConeLeft.findIntersection2D(topConeRight)
                 intersection_2 = bottomConeLeft.findIntersection2D(topConeBase)
-                self.collision_direction_1 = glm.vec3(-0.755929, -0.654654, 0)
-                self.collision_direction_2 = glm.vec3(0,1,0)
 
-        #self.collision_direction_1 = glm.normalize(self.collision_point.vectorFromTo(intersection_1))
-        #self.collision_direction_2 = glm.normalize(self.collision_point.vectorFromTo(intersection_2))
-        print(self.collision_direction_1)
-        print(self.collision_direction_2)
+        self.collision_direction_1 = glm.normalize(self.collision_point.vectorFromTo(intersection_1))
+        self.collision_direction_2 = glm.normalize(self.collision_point.vectorFromTo(intersection_2))
 
 
 
@@ -83,16 +81,18 @@ class CollisionLine:
     foundEnd: bool = False
     line: Line
     id: int
+    coneIDs: list[int]
 
-    def __init__(self, line: Line, id: int):
+    def __init__(self, line: Line, coneIDs, id: int):
+        self.coneIDs = coneIDs
         self.line = line
         self.id = id
 
     def findClosestIntersections(self, col_lines):
         # return closest 2 intersections
         from Line import Line
-        closestLine1 = CollisionLine(Line(Point(glm.vec3(0,0,0)), glm.vec3(0,0,1)), 0)
-        closestLine2 = CollisionLine(Line(Point(glm.vec3(0,0,0)), glm.vec3(0,0,1)), 0)
+        closestLine1 = False
+        closestLine2 = False
         closestDistance1 = float('inf')
         closestDistance2 = float('inf')
 
@@ -106,18 +106,15 @@ class CollisionLine:
                             if glm.dot(glm.normalize(other_col_line.line.p.vectorFromTo(intersectionPoint)), other_col_line.line.norm_dir) > 0:
                                 intersectionDistance = self.line.p.euclidean_distance(intersectionPoint)
                                 if intersectionDistance < closestDistance1:
-                                    closestLine2 = CollisionLine(Line(closestLine1.line.p, closestLine1.line.norm_dir), closestLine1.id)
-                                    closestDistance2 = closestDistance1
-                                    closestLine1 = CollisionLine(Line(other_col_line.line.p, other_col_line.line.norm_dir), other_col_line.id)
+                                    if closestLine1:  # Avoid Start Variable
+                                        closestLine2 = CollisionLine(Line(closestLine1.line.p, closestLine1.line.norm_dir), closestLine1.coneIDs, closestLine1.id)
+                                        closestDistance2 = closestDistance1
+                                    closestLine1 = CollisionLine(Line(other_col_line.line.p, other_col_line.line.norm_dir), other_col_line.coneIDs, other_col_line.id)
                                     closestDistance1 = intersectionDistance
                                 elif intersectionDistance < closestDistance2:
-                                    closestLine2 = CollisionLine(Line(other_col_line.line.p, other_col_line.line.norm_dir), other_col_line.id)
+                                    closestLine2 = CollisionLine(Line(other_col_line.line.p, other_col_line.line.norm_dir), other_col_line.coneIDs, other_col_line.id)
                                     closestDistance2 = intersectionDistance
 
-        if closestDistance1 == float('inf'):
-            return [False, False]
-        if closestDistance2 == float('inf'):
-            return [closestLine1, False]
         return [closestLine1, closestLine2]
 
     def setEnd(self, p: Point):

@@ -6,16 +6,18 @@ from Point import Point
 
 class Cone:
 
+    id: int
     center: Point
     theta: float
     mew: float
     delta: float
 
-    def __init__(self, center: Point, theta: float, mew: float):
+    def __init__(self, center: Point, theta: float, mew: float, coneid: int):
         self.center = center
         self.theta = theta
         self.mew = mew
         self.delta = (180 - theta) / 2
+        self.id = coneid
 
     def get_triangle_vertices(self, scale: float, base_vector: glm.vec3) -> list[Point]:
         bottom_vector = glm.vec3(base_vector)  # Apparently needed for PyGLM/Python in general
