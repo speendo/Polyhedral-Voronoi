@@ -264,14 +264,14 @@ def main(n, t, m):
 
 
     """Save SVG"""
-    print("Writing to SVG")
+    print("Writing to SVG...")
     dwg = svgwrite.Drawing('../voronoi-'+str(int(THETA))+'-'+str(MEW)+'-'+str(NO_POINTS)+'.svg', size=(MAX_X, MAX_Y))
     for col_line in final_lines:
         if col_line.foundEnd:
             line = col_line.line
             dwg.add(dwg.line((line.p.coords.x, MAX_Y - line.p.coords.y),
-                                 (line.end.coords.x, MAX_Y - line.end.coords.y),
-                                 stroke=svgwrite.rgb(0, 0, 0, '%'), stroke_width='2'))
+                             (line.end.coords.x, MAX_Y - line.end.coords.y),
+                             stroke=svgwrite.rgb(0, 0, 0, '%'), stroke_width='1'))
         else:
             print("No End of line for ID: "+str(col_line.id))
     dwg.save()
