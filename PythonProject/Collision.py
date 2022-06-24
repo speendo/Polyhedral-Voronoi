@@ -97,22 +97,29 @@ class CollisionLine:
         closestDistance2 = float('inf')
 
         for other_col_line in col_lines:
+            ignore = False
             if other_col_line.line.p.coords != self.line.p.coords:
                 intersectionPoint = self.line.findIntersection2D(other_col_line.line)
                 if intersectionPoint:
                     # check if point actually on line direction and not behind
                     if glm.dot(glm.normalize(self.line.p.vectorFromTo(intersectionPoint)), self.line.norm_dir) > 0:
                         if glm.dot(glm.normalize(other_col_line.line.p.vectorFromTo(intersectionPoint)), other_col_line.line.norm_dir) > 0:
-                            intersectionDistance = self.line.p.euclidean_distance(intersectionPoint)
-                            if intersectionDistance < closestDistance1:
-                                if closestLine1:  # Avoid Start Variable
-                                    closestLine2 = CollisionLine(Line(closestLine1.line.p, closestLine1.line.norm_dir), closestLine1.coneIDs, closestLine1.id)
-                                    closestDistance2 = closestDistance1
-                                closestLine1 = CollisionLine(Line(other_col_line.line.p, other_col_line.line.norm_dir), other_col_line.coneIDs, other_col_line.id)
-                                closestDistance1 = intersectionDistance
-                            elif intersectionDistance < closestDistance2:
-                                closestLine2 = CollisionLine(Line(other_col_line.line.p, other_col_line.line.norm_dir), other_col_line.coneIDs, other_col_line.id)
-                                closestDistance2 = intersectionDistance
+                            # if other line has end, check if intersection not beyond that end
+                            if not other_col_line.foundEnd or (
+                                min(other_col_line.line.p.x, other_col_line.line.end.x) <= intersectionPoint.x <= max(other_col_line.line.p.x, other_col_line.line.end.x)
+                                and min(other_col_line.line.p.y, other_col_line.line.end.y) <= intersectionPoint.y <= max(other_col_line.line.p.y, other_col_line.line.end.y)
+                                and min(other_col_line.line.p.z, other_col_line.line.end.z) <= intersectionPoint.z <= max(other_col_line.line.p.z, other_col_line.line.end.z)
+                            ):
+                                intersectionDistance = self.line.p.euclidean_distance(intersectionPoint)
+                                if intersectionDistance < closestDistance1:
+                                    if closestLine1:  # Avoid Start Variable
+                                        closestLine2 = CollisionLine(Line(closestLine1.line.p, closestLine1.line.norm_dir), closestLine1.coneIDs, closestLine1.id)
+                                        closestDistance2 = closestDistance1
+                                    closestLine1 = CollisionLine(Line(other_col_line.line.p, other_col_line.line.norm_dir), other_col_line.coneIDs, other_col_line.id)
+                                    closestDistance1 = intersectionDistance
+                                elif intersectionDistance < closestDistance2:
+                                    closestLine2 = CollisionLine(Line(other_col_line.line.p, other_col_line.line.norm_dir), other_col_line.coneIDs, other_col_line.id)
+                                    closestDistance2 = intersectionDistance
 
         return [closestLine1, closestLine2]
 
