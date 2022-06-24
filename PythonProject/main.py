@@ -181,7 +181,7 @@ def main(n, t, m):
     for col_line in connected_lines:
         # At a certain point number, some lines just can't find intersections ??
         # This erases the buggy lines but leaves some wholes:
-        if NO_POINTS > 250 and col_line.line.p.euclidean_distance(col_line.line.end) < MAX_X*1.41421356237:
+        if NO_POINTS <= 250 or col_line.line.p.euclidean_distance(col_line.line.end) < MAX_X*1.41421356237:
             line = col_line.line
             if line.end.coords.y >= MIN_Y and line.p.coords.y >= MIN_Y:
                 final_lines.append(col_line)
