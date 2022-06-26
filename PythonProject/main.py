@@ -189,13 +189,13 @@ def main(n, t, m, mm, mode):
 
 
     # At a certain point number, some intersections are wrong, so we want to avoid problems
-    if NO_POINTS > 250:
-        for col_line in col_lines:
-            if not col_line.foundEnd:
-                first_colliding_line = col_line.findClosestIntersections(connected_lines)[0]
-                if first_colliding_line:
-                    intersectionPoint = col_line.line.findIntersection2D(first_colliding_line.line)
-                    setCollisionLineEnd(col_line.id, intersectionPoint)
+    #if NO_POINTS > 250:
+    for col_line in col_lines:
+        if not col_line.foundEnd:
+            first_colliding_line = col_line.findClosestIntersections(connected_lines)[0]
+            if first_colliding_line:
+                intersectionPoint = col_line.line.findIntersection2D(first_colliding_line.line)
+                setCollisionLineEnd(col_line.id, intersectionPoint)
 
 
     # Handle all collisions with boundary lines
@@ -224,7 +224,7 @@ def main(n, t, m, mm, mode):
     for col_line in connected_lines:
         # At a certain point number, some lines just can't find intersections ??
         # This erases the buggy lines but leaves some holes:
-        if NO_POINTS <= 250 or col_line.line.p.euclidean_distance(col_line.line.end) < MAX_X*1.41421356237:
+        if col_line.line.p.euclidean_distance(col_line.line.end) < MAX_X*1.41421356237:
             line = col_line.line
             if line.end.coords.y >= MIN_Y and line.p.coords.y >= MIN_Y:
                 final_lines.append(col_line)
