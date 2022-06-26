@@ -34,16 +34,22 @@ def print_points(points):
 
 
 def main(n, t, m):
-    drawAllCollisions = False
+
+    SIZE_IN_MILLIMETER = 35
+
     NO_POINTS = n
     THETA = t
     MEW = m
+
     MIN_X = 0
     MIN_Y = 0
     MIN_Z = 0
     MAX_X = 1000
-    MAX_Y = 1000
+    MAX_Y = MAX_X
     MAX_Z = 0
+
+    CANVAS_TO_MILLIMETER = 0.26458334 * MAX_X
+    CANVAS_SCALING = SIZE_IN_MILLIMETER / CANVAS_TO_MILLIMETER
 
     points = [Point(glm.vec3(random.random() * MAX_X, random.random() * MAX_Y,
                              random.random() * MAX_Z), i) for i in range(NO_POINTS)]
@@ -87,7 +93,7 @@ def main(n, t, m):
     print_points(points)
 
 
-    """Calculate Cones and possible colissions between tghem"""
+    """Calculate Cones and possible collisions between them"""
 
     cones = [Cone(points[i], THETA, MEW, i) for i in range(len(points))]
 
@@ -237,13 +243,14 @@ def main(n, t, m):
 
     """Save SVG"""
     print("Writing to SVG...")
-    dwg = svgwrite.Drawing('../voronoi-'+str(int(THETA))+'-'+str(MEW)+'-'+str(NO_POINTS)+'.svg', size=(MAX_X, MAX_Y))
+    dwg = svgwrite.Drawing('../voronoi-'+str(int(THETA))+'-'+str(MEW)+'-'+str(NO_POINTS)+'.svg',
+                           size=(MAX_X * CANVAS_SCALING, MAX_Y * CANVAS_SCALING))
     for col_line in final_lines:
         if col_line.foundEnd:
             line = col_line.line
-            dwg.add(dwg.line((line.p.coords.x, MAX_Y - line.p.coords.y),
-                             (line.end.coords.x, MAX_Y - line.end.coords.y),
-                             stroke=svgwrite.rgb(0, 0, 0, '%'), stroke_width='1'))
+            dwg.add(dwg.line((line.p.coords.x * CANVAS_SCALING, MAX_Y * CANVAS_SCALING - line.p.coords.y * CANVAS_SCALING),
+                             (line.end.coords.x * CANVAS_SCALING, MAX_Y * CANVAS_SCALING - line.end.coords.y * CANVAS_SCALING),
+                             stroke=svgwrite.rgb(0, 0, 0, '%'), stroke_width='0.1'))
         else:
             print("No End of line for ID: "+str(col_line.id))
     dwg.save()
