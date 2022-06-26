@@ -323,7 +323,7 @@ def main(n, t, m, mm, mode):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) > 4 and 0 <= float(sys.argv[3]) <= 1 and 0 <= float(sys.argv[2]) <= 90 and 1 <= int(sys.argv[5]) <= 5:
+    if len(sys.argv) > 5 and 0 <= float(sys.argv[3]) <= 1 and 0 <= float(sys.argv[2]) <= 90 and 1 <= int(sys.argv[5]) <= 5:
         main(int(sys.argv[1]), float(sys.argv[2]), float(sys.argv[3]), float(sys.argv[4]), int(sys.argv[5]))
     else:
         print("Usage: main.py "
