@@ -33,13 +33,12 @@ def print_points(points):
 
 
 
-def main(n, t, m):
-
-    SIZE_IN_MILLIMETER = 35
+def main(n, t, m, mm, mode):
 
     NO_POINTS = n
     THETA = t
     MEW = m
+    SIZE_IN_MILLIMETER = mm
 
     MIN_X = 0
     MIN_Y = 0
@@ -50,39 +49,40 @@ def main(n, t, m):
 
     CANVAS_TO_MILLIMETER = 0.26458334 * MAX_X
     CANVAS_SCALING = SIZE_IN_MILLIMETER / CANVAS_TO_MILLIMETER
-
-    points = [Point(glm.vec3(random.random() * MAX_X, random.random() * MAX_Y,
-                             random.random() * MAX_Z), i) for i in range(NO_POINTS)]
-
-
-    """# Reverse Y exponential
-    points = [Point(glm.vec3(random.random() * MAX_X,
-                             MAX_Y - pow(random.random() * 31.6227766017, 2),
-                             0), i) for i in range(NO_POINTS)]
-    # """
-
-    """# X edges, Y exponential
-    points = [Point(glm.vec3(((i % 2) * MAX_X) + ((i % 2) * -2 + 1) * pow(random.random() * 58.1709, 1.7),
-                             #random.random() * MAX_Y,
-                             pow(random.random() * 58.1709, 1.7),
-                             0), i) for i in range(NO_POINTS)]
-    # """
-
-    """# Cross
-    points = [Point(glm.vec3(
-        (random.randint(1,2) % 2 * -2 + 1) * pow(random.random() * 38.6927, 1.7) + 500,
-        (random.randint(1, 2) % 2 * -2 + 1) * pow(random.random() * 38.6927, 1.7) + 500,
-        0
-    ), i) for i in range(NO_POINTS)]
-    # """
-
-    """# "Circle"
     points = []
-    for i in range(NO_POINTS):
-        radians = random.random() * 2*math.pi
-        radius = pow(random.random() * 38.6927, 1.7)
-        points.append(Point(glm.vec3(math.cos(radians) * radius + 500, math.sin(radians) * radius + 500, 0), i))
-    # """
+
+    # Random Distribution
+    if mode == 1:
+        points = [Point(glm.vec3(random.random() * MAX_X, random.random() * MAX_Y,
+                                 random.random() * MAX_Z), i) for i in range(NO_POINTS)]
+
+
+    # Reverse Y exponential
+    elif mode == 2:
+        points = [Point(glm.vec3(random.random() * MAX_X,
+                                 MAX_Y - pow(random.random() * 31.6227766017, 2),
+                                 0), i) for i in range(NO_POINTS)]
+
+    # X edges, Y exponential
+    elif mode == 3:
+        points = [Point(glm.vec3(((i % 2) * MAX_X) + ((i % 2) * -2 + 1) * pow(random.random() * 58.1709, 1.7),
+                                 pow(random.random() * 58.1709, 1.7),
+                                 0), i) for i in range(NO_POINTS)]
+
+    # Cross
+    elif mode == 4:
+        points = [Point(glm.vec3(
+            (random.randint(1,2) % 2 * -2 + 1) * pow(random.random() * 38.6927, 1.7) + 500,
+            (random.randint(1, 2) % 2 * -2 + 1) * pow(random.random() * 38.6927, 1.7) + 500,
+            0), i) for i in range(NO_POINTS)]
+
+    # "Circle"
+    elif mode == 5:
+        for i in range(NO_POINTS):
+            radians = random.random() * 2*math.pi
+            radius = pow(random.random() * 38.6927, 1.7)
+            points.append(Point(glm.vec3(math.cos(radians) * radius + 500, math.sin(radians) * radius + 500, 0), i))
+
 
     # Buggy inputs:
     #   Error when rounding: n = 5
@@ -323,7 +323,17 @@ def main(n, t, m):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) > 3 and 0 <= float(sys.argv[3]) <= 1 and 0 <= float(sys.argv[2]) <= 90:
-        main(int(sys.argv[1]), float(sys.argv[2]), float(sys.argv[3]))
+    if len(sys.argv) > 4 and 0 <= float(sys.argv[3]) <= 1 and 0 <= float(sys.argv[2]) <= 90 and 1 <= int(sys.argv[5]) <= 5:
+        main(int(sys.argv[1]), float(sys.argv[2]), float(sys.argv[3]), float(sys.argv[4]), int(sys.argv[5]))
     else:
-        print("Usage: main.py <Number of points (ℕ)> <Theta (degrees, 0.0-90.0)> <Mew (scalar, 0.0-1.0)>")
+        print("Usage: main.py "
+              "<Number of points (ℕ)> "
+              "<Theta (degrees, 0.0-90.0)> "
+              "<Mew (scalar, 0.0-1.0)> "
+              "<SVG size in mm (ℝ)> "
+              "<Mode (1-5)>")
+        print("Modes: 1 = Random Distribution, "
+              "2 = Exponentially more on top, "
+              "3 = Exponentially more on sides and bottom "
+              "4 = Cross-like Distribution "
+              "5 = Circle-like Distribution ")
