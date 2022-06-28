@@ -83,6 +83,18 @@ def main(n, t, m, mm, mode):
             radius = pow(random.random() * 38.6927, 1.7)
             points.append(Point(glm.vec3(math.cos(radians) * radius + 500, math.sin(radians) * radius + 500, 0), i))
 
+    # Edges
+    elif mode == 6:
+        for i in range(NO_POINTS):
+            if i%4 == 0:
+                points.append(Point(glm.vec3(pow(random.random() * 22.36, 2), pow(random.random() * 22.36, 2), 0), i))
+            elif i%3 == 0:
+                points.append(Point(glm.vec3(MAX_X - pow(random.random() * 22.36, 2), pow(random.random() * 22.36, 2), 0), i))
+            elif i%2 == 0:
+                points.append(Point(glm.vec3(pow(random.random() * 22.36, 2), MAX_Y - pow(random.random() * 22.36, 2), 0), i))
+            else:
+                points.append(Point(glm.vec3(MAX_X - pow(random.random() * 22.36, 2), MAX_Y - pow(random.random() * 22.36, 2), 0), i))
+
 
     # Buggy inputs:
     #   Error when rounding: n = 5
@@ -276,8 +288,9 @@ def main(n, t, m, mm, mode):
             line = col_line.line
             lines.append([line.p.coords, line.end.coords])
         else:
-            print("No End of line for ID: " + str(col_line.id))
-            # lines.append([line.p.coords, line.p.coords + line.norm_dir * 100])
+            print("Line with no end? ID:"+str(col_line.id))
+            line = col_line.line
+            lines.append([line.p.coords, line.p.coords + line.norm_dir * MAX_X*1.414])
 
     scatter_lines = []
     for line in lines:
@@ -286,6 +299,7 @@ def main(n, t, m, mm, mode):
         data.append(go.Scatter3d(x=scatter_line[0], y=scatter_line[1], z=scatter_line[2], mode='lines',
                                  line={'color': 'black'}))
     # """
+
 
     """#Draw Triangles
     scatter_triangles = []
@@ -296,11 +310,36 @@ def main(n, t, m, mm, mode):
                                 line={'color': "lightblue"}))
     # """
 
-    """#Draw Collisions
+    """# Draw ALL Triangles
+    all_scatter_triangles = []
+    for triangle in all_triangles:
+        all_scatter_triangles.append(points_to_scatter(triangle, True))
+    for scatter_triangle in all_scatter_triangles:
+        data.append(go.Scatter3d(x=scatter_triangle[0], y=scatter_triangle[1], z=scatter_triangle[2], mode='lines',
+                                 line={'color': "red"}))
+    # """
+
+
+
+    """# Draw Collisions
     scatter_collisions = points_to_scatter(col_points, False)
     data.append(go.Scatter3d(x=scatter_collisions[0], y=scatter_collisions[1], z=scatter_collisions[2],
-                                         mode='markers', marker={'color': 'violet', 'size': 5}))
+                             mode='markers', marker={'color': 'green', 'size': 5}))
     # """
+
+    """# Draw ALL Collisions
+    all_collision_points = []
+    all_triangles = []
+    for collision in all_collisions:
+        all_collision_points.append(collision.collision_point)
+        all_triangles.append(collision.topCone.get_triangle_vertices(collision.scale, collision.vector_between))
+        all_triangles.append(collision.bottomCone.get_triangle_vertices(collision.scale, collision.vector_between))
+    all_scatter_collisions = points_to_scatter(all_collision_points, False)
+    data.append(go.Scatter3d(x=all_scatter_collisions[0], y=all_scatter_collisions[1], z=all_scatter_collisions[2],
+                             mode='markers', marker={'color': 'red', 'size': 5}))
+    # """
+
+
 
     """#Draw Buggy Lines
         scatter_buggy = []
@@ -311,19 +350,22 @@ def main(n, t, m, mm, mode):
                                     line={'color': 'red'}))
     # """
 
+
+    # Start RenderView
     fig = go.Figure(data=data)
-    """fig.update_layout(
+    """fig.update_layout(   # Disable skewing of coordinates
         scene=dict(
             xaxis=dict(tickmode="linear", range=[MIN_X, MAX_X], linewidth=1),
             yaxis=dict(tickmode="linear", range=[MIN_Y, MAX_Y], linewidth=1),
             zaxis=dict(tickmode="linear", range=[MIN_Z, MAX_Z], linewidth=1),
-        ))"""
+        ))
+    # """
     fig.show()
     print_points(points)
 
 
 if __name__ == '__main__':
-    if len(sys.argv) > 5 and 0 <= float(sys.argv[3]) <= 1 and 0 <= float(sys.argv[2]) <= 90 and 1 <= int(sys.argv[5]) <= 5:
+    if len(sys.argv) > 5 and 0 <= float(sys.argv[3]) <= 1 and 0 <= float(sys.argv[2]) <= 90 and 1 <= int(sys.argv[5]) <= 6:
         main(int(sys.argv[1]), float(sys.argv[2]), float(sys.argv[3]), float(sys.argv[4]), int(sys.argv[5]))
     else:
         print("Usage: main.py "
